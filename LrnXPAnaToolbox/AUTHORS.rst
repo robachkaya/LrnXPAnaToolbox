@@ -10,4 +10,4 @@ Development Lead
 Contributors
 ------------
 
-None yet. Why not be the first?
+* Ulysse Queritet Diop <YLSZ> https://github.com/ulysse-qd
