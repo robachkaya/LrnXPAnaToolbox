@@ -5,11 +5,13 @@ Credits
 Development Lead
 ----------------
 
-* Kayané Elmayan Robach <kaya.robach@gmail.com>
+* UQDKR : Ulysse Queritet Diop & Kayané Robach
 
 Contributors
 ------------
 
-* Ulysse Queritet Diop <YLSZ> https://github.com/ulysse-qd
+* Kayané Elmayan Robach  <robachkaya>  https://github.com/robachkaya  kaya.robach@gmail.com
+
+* Ulysse Queritet Diop  <YLSZ>  https://github.com/ulysse-qd  ulysse.queritet-diop@epitech.eu
 
 

@@ -1,7 +1,9 @@
+#!/usr/bin/python3
+
 ## EVIDENCEB, 2020
-## transform data
+## transform_data.py
 ## File description:
-## trasnform data function
+## transform data function
 
 import ijson
 import json
@@ -24,17 +26,18 @@ def usage(argv): # argv = arguments passed to the script = transform_data.py -h
     if len(argv) == 2:
         if argv[1] == "-h":
             print("USAGE")
-            print("    ./transform_data.py  option")
+            print("    ./transform_data.py  option  original_json_sequences_name  original_json_trackings_name")
             print("DESCRIPTION")
-            print("""    option = 3       Transform data and save 2 pandas dataframes : sequences and trackings""")
+            print("""    option = 3       Transform data and save 2 pandas dataframes : sequences and chatbot""")
             print("""    option = 1       Transform data and save 1 pandas dataframe : sequences""")
-            print("""    option = 2       Transform data and save 1 pandas dataframe : trackings""")
-            print("""\ntransform_data.py must be saved in a folder which must contain a data folder with the following files :\nsequences_original_v2.txt and sequences_original_v2.json\ntrackings_original_v2.txt and trackings_original_v2.json""")
+            print("""    option = 2       Transform data and save 1 pandas dataframe : chatbot""")
+            print("""    original_json_sequences_name   original_json_trackings_name   are the names of both json files.""")
+            print("""\ntransform_data.py must be into a directory with a directory named data with the files : \noriginal_json_sequences_name.txt and original_json_sequences_name.json\noriginal_json_trackings_name.txt and original_json_trackings_name.json""")
             return 1
     return 0
 
-def check_error(argv): # argv = arguments passed to the script = transform_data.py option
-    if len(argv) != 2:
+def check_error(argv): # argv = arguments passed to the script = transform_data.py option seq track
+    if len(argv) != 4:
         print("Wrong number of arguments, try \"-h\" for more informations")
         return 1
     if (argv[1].isdigit() != True) :
@@ -46,6 +49,9 @@ def check_error(argv): # argv = arguments passed to the script = transform_data.
             print("Argument must be 1 if you want to save the sequences pandas dataframe.")
             print("Argument must be 2 if you want to save the trackings pandas dataframe.")
             return 1
+    if (argv[2].isidentifier() != True)|(argv[3].isidentifier() != True):
+        print("names arguments have to be the names of the sequences and trackings json files so : alphanumeric letters (a-z) and/or (0-9) and/or underscores (_).")
+        return 1
     return 0
 
 def to_workable_json(namefile):
@@ -134,6 +140,12 @@ def dict_diagnostique(dataframe_chatbot):
     chatbot_data_difficulty = dataframe_chatbot[dataframe_chatbot['pathseq']==0]
     chatbot_data_difficulty = pds.DataFrame.set_index(chatbot_data_difficulty,(np.arange(len(chatbot_data_difficulty))))
     diagnostique = {}
+
+    # we have to transform the id_mpae column in string :
+    dfnew = chatbot_data_difficulty[['id_mpae']].copy(deep=True)
+    pds.options.mode.chained_assignment = None
+    chatbot_data_difficulty['id_mpae'] = dfnew['id_mpae'].apply( lambda x : ''.join(str(e) for e in x) )
+
     for idmpae in chatbot_data_difficulty['id_mpae'].unique():
         diagnostique[idmpae]=[]
         df = chatbot_data_difficulty[chatbot_data_difficulty['id_mpae']==idmpae]['difficultyseq']
@@ -157,9 +169,9 @@ def dict_diagnostique(dataframe_chatbot):
     return diagnostique
 
 def json_to_csv_track(csvfile, jsonfile):
-    with open((os.path.join(".","data", "{0}.csv".format(csvfile))), 'w') as csvfile:
+    with io.open((os.path.join(".","data", "{0}.csv".format(csvfile))), 'w') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        with open((os.path.join(".","data", "{0}.json".format(jsonfile)))) as f:
+        with io.open((os.path.join(".","data", "{0}.json".format(jsonfile)))) as f:
             objects = ijson.items(f, '')
             for datum in objects :
                 for i in range(len(list(datum.values())[0])):
@@ -194,17 +206,34 @@ def index_essay(df):
     df['essai'] = df.index
     return df
 
+def id_mpae_3_step(row):
+    if row.etape==3 :
+        return [int(-1),int(-1),int(-1),int(-1)]
+    else :
+        return [int(row.module),int(row.path),int(row.activity),int(row.exerciceId)]
+    
+
 def set_essai(data):
-    frames = []
-    for eleve in data['token'].unique():
-        data_eleve_1_2 = data[(data['token']==eleve)&(data['etape']!=3)].groupby('id_mpae')
-        data_eleve_3 = data[(data['token']==eleve)&(data['etape']==3)]
+
+    # we have to transform the id_mpae column in string :
+    dfnew = data[['id_mpae']].copy(deep=True)
+    pds.options.mode.chained_assignment = None
+    data['id_mpae'] = dfnew['id_mpae'].apply( lambda x : ''.join(str(e) for e in x) )
+
+    def create_frames(data):
+        frames = []
+        data_eleve_1_2 = data[(data['etape']!=3)].groupby(['token','id_mpae'])
+        data_eleve_3 = data[(data['etape']==3)]
         indexed_data_1_2 = data_eleve_1_2.apply(index_essay)
         #indexed_data_3 = data_eleve_3.apply(index_essay)
         frames.append(indexed_data_1_2)
         frames.append(data_eleve_3)
-    result = pds.concat(frames)
+        return frames
+
+    result = pds.concat( create_frames(data) )
     result = pds.DataFrame.set_index(result,np.arange(result.shape[0]))
+  
+    result['id_mpae'] = result.apply(lambda row : id_mpae_3_step(row), axis=1)
     return result
 
 def duree(data):
@@ -270,12 +299,16 @@ def tranche_horaire(data):
         d[serie[0]] = np.quantile(array_horaires,0.5)  
     return d
 
-def transform_data(option):
+
+def transform_data(option,original_json_sequences_name,original_json_trackings_name):
+
+    today = datetime.date.today()
     
     if option == 3: #save 2 pandas dataframe : sequences and trackings
         
-        print("building data for trackings file\n")
-        json_to_csv_seq('jsonfile_to_csv_sequences2','transformed_sequences_original_v2')
+        print("building sequences data\n")
+        to_workable_json(original_json_sequences_name)
+        json_to_csv_seq('jsonfile_to_csv_sequences2',f'transformed_{original_json_sequences_name}')
         print("                                              ,","                                             ,o","                                             :o",sep="\n")
         dumpseq_1 = csv_to_dataframe('jsonfile_to_csv_sequences2',['moduleseq','pathseq','activityseq','exerciceseq','difficultyseq','module','path','activity','id_eleve','reponse','reponse_correcte','correct'])
         print("                    _....._                  `:o","                  .'       ``-.                \o","                 /  _      _   \                \o",sep="\n")
@@ -285,24 +318,34 @@ def transform_data(option):
         print("                 \  (\_____/) /                  /o","                  \   UQDKR  (                  /o","                   \         (                ,o:",sep="\n")
         dumpseq_1 = dumpseq_1.fillna(-1)
         print("                   )          \,           .o;o'           ,o'o'o.","                 ./          /\o;o,,,,,;o;o;''         _,-o,-'''-o:o.","  .             ./o./)        \    'o'o'o''         _,-'o,o'         o",sep="\n")
-        dumpseq_1.loc[:,'id_mpae'] = dumpseq_1.apply(lambda row: str(row.module)+'_'+str(row.path)+'_'+str(row.activity)+'_'+str(row.exerciceseq), axis=1)
+        dumpseq_1.loc[:,'id_mpae'] = dumpseq_1.apply(lambda row: [int(row.module),int(row.path),int(row.activity),int(row.exerciceseq)], axis=1)
         print("  o           ./o./ /       .o \.              __,-o o,o'","  \o.       ,/o /  /o/)     | o o'-..____,,-o'o o_o-'","  `o:o...-o,o-' ,o,/ |     \   'o.o_o_o_o,o--''",sep="\n")
-        dumpseq_1.loc[:,'id_final_mpae'] = dumpseq_1.apply(lambda row: str(row.moduleseq)+'_'+str(row.pathseq)+'_'+str(row.activityseq)+'_'+str(row.exerciceseq), axis=1)
+        dumpseq_1.loc[:,'id_final_mpae'] = dumpseq_1.apply(lambda row: [int(row.moduleseq),int(row.pathseq),int(row.activityseq),int(row.exerciceseq)], axis=1)
         print("  .,  ``o-o'  ,.oo/   'o /\.o`.","  `o`o-....o'o,-'   /o /   \o \.                       ,o..         o","    ``o-o.o--      /o /      \o.o--..          ,,,o-o'o.--o:o:o,,..:o",sep="\n")
         diagnostique = dict_diagnostique(dumpseq_1)
         print("                  (oo(          `--o.o`o---o'o'o,o,-'''        o'o'o","                   \ o\              ``-o-o''''","    ,-o;o           \o \\","    ,-o;o           \o \\",sep="\n")
+        
+        # pandas error with list we have to transform the id_mpae column in string :
+        dfnew = dumpseq_1[['id_mpae']].copy(deep=True)
+        pds.options.mode.chained_assignment = None
+        dumpseq_1['id_mpae'] = dfnew['id_mpae'].apply( lambda x : ''.join(str(e) for e in x) )
+
         dumpseq_1['diagnostique'] = dumpseq_1['id_mpae'].map(diagnostique)
+
+        dumpseq_1['id_mpae'] = dfnew['id_mpae'].apply( lambda x : list( int(e) for e in x ) )
+
         print("   /o/               )o )","  (o(               /o /","   \o\.       ...-o'o /",sep="\n")
-        dumpseq_1.to_pickle((os.path.join(".","data", "sequences_data_v2.pk1")))
+        dumpseq_1.to_pickle((os.path.join(".","data", f"sequences_data_{today}.pk1")))
         print("    \ o`o`-o'o o,o,--'","       ```o--'''",sep="\n")
         print("\nsequences dataframe built\n")
         
-        print("building data for trackings file\n")
+        print("building trackings data\n")
+        to_workable_json(original_json_trackings_name)
+        json_to_csv_track('jsonfile_to_csv_trackings2',f'transformed_{original_json_trackings_name}')
         print("                                                       ______","                                                     /    /_-._",sep="\n")
-        to_workable_json('trackings_original_v2')
-        json_to_csv_track('jsonfile_to_csv_trackings2','transformed_trackings_original_v2')
         print("                                                   / /_ ~~o\  :Y","                                                   / : \~x.  ` ')",sep="\n")
         dumptrack_2 = csv_to_dataframe('jsonfile_to_csv_trackings2',['token','module','path','activity','tms','exerciceId','isCorrect'])
+        
         dico_etapes = remplir_etape()
         print("                                                  /  |  Y< ~-.__j")
         dumptrack_2['tms'] = dumptrack_2['tms']/1000
@@ -310,15 +353,22 @@ def transform_data(option):
         print("                                                 UQDKR  l<  /.-~")
         dumptrack_2['etape'] = dumptrack_2.apply(lambda row: dico_etapes[(row.module,row.path,row.activity)],axis=1)
         print("                                                 ` l /~\ \<|Y")
-        dumptrack_2['id_mpa'] = dumptrack_2.apply(lambda row: str(row.module)+'_'+str(row.path)+'_'+str(row.activity), axis=1)
+        dumptrack_2['id_mpa'] = dumptrack_2.apply(lambda row: [int(row.module),int(row.path),int(row.activity)], axis=1)
         print("                                                    ',-~\ \L|")
-        dumptrack_2['id_mpae'] = dumptrack_2.apply(lambda row: str(row.module)+'_'+str(row.path)+'_'+str(row.activity)+'_'+str(row.exerciceId) if row.etape!=3 else 0, axis=1)
+        dumptrack_2['id_mpae'] = dumptrack_2.apply(lambda row: id_mpae_3_step(row), axis=1)
         print("'--.____  '--------.______       _.----.-----./      :/   '--'")
         dumptrack_2['date'] = dumptrack_2.apply(lambda row: (datetime.datetime.fromtimestamp(row.tms).year,datetime.datetime.fromtimestamp(row.tms).month,datetime.datetime.fromtimestamp(row.tms).day), axis=1)
         print("        '--.__            `'----/       '-.      __ :/")
         chatbot = set_essai(dumptrack_2)
+        
         print("              '-.___           :           \   .'  )/")
+        # we have to transform the id_mpae column in string :
+
+        dfnew = chatbot[['id_mpae']].copy(deep=True)
+        pds.options.mode.chained_assignment = None
+        chatbot['id_mpae'] = dfnew['id_mpae'].apply( lambda x : ''.join(str(e) for e in x) )        
         chatbot['diagnostique'] = chatbot['id_mpae'].map(diagnostique)
+        chatbot['id_mpae'] = dfnew['id_mpae'].apply( lambda x : list( int(e) for e in x ) )
         chatbot.loc[chatbot['etape']!=1,'diagnostique'] = np.nan
         print("                    '---._           _.-'   ] /  _/")
         chatbot_new = duree(chatbot)
@@ -329,11 +379,13 @@ def transform_data(option):
         connection_index = get_index_connection(chatbot_new)
         chatbot_new['num_connection'] = chatbot_new.index.map(connection_index)
         print("                               <_______.\    \_\_---.7")
+        came_back = {}
         for idt in chatbot_new['token'].unique() :
             came_back[idt] = sum(chatbot_new[chatbot_new['token']==idt]['duree'] > 2700)
         print("                              |   /'=r_.-'     _\\ =/")
         chatbot_new['reconnections'] = chatbot_new['token'].map(came_back)
         print("                          .--'   /            ._/'>")
+        nbr_questions = {}
         for idt in chatbot_new['token'].unique() :
             nbr_questions[idt] = chatbot_new[chatbot_new['token']==idt].shape[0]
         print("                        .'   _.-'")
@@ -352,14 +404,15 @@ def transform_data(option):
        'jour', 'etape', 'id_mpa', 'id_mpae', 'date', 'essai',
        'tps+1', 'duree', 'num_connection', 'reconnections',
        'nbr_questions_faites', 'parcours_diagnostique', 'horaire']]
-       print("                      'c=,")
-        chatbot_final.to_pickle((os.path.join(".","data", "chatbot_data_v2.pk1")))
-        print("\ntrackings dataframe built")
+        print("                      'c=,")
+        chatbot_final.to_pickle((os.path.join(".","data", f"chatbot_data_{today}.pk1")))
+        print("\nchatbot dataframe built from trackings and sequences data")
         
     if option == 1: # save 1 pandas dataframe : sequences 
         
         print("building sequences dataframe\n")
-        json_to_csv_seq('jsonfile_to_csv_sequences2','transformed_sequences_original_v2')
+        to_workable_json(original_json_sequences_name)
+        json_to_csv_seq('jsonfile_to_csv_sequences2',f'transformed_{original_json_sequences_name}')
         print("                                              ,","                                             ,o","                                             :o",sep="\n")
         dumpseq_1 = csv_to_dataframe('jsonfile_to_csv_sequences2',['moduleseq','pathseq','activityseq','exerciceseq','difficultyseq','module','path','activity','id_eleve','reponse','reponse_correcte','correct'])
         print("                    _....._                  `:o","                  .'       ``-.                \o","                 /  _      _   \                \o",sep="\n")
@@ -369,22 +422,28 @@ def transform_data(option):
         print("                 \  (\_____/) /                  /o","                  \   UQDKR  (                  /o","                   \         (                ,o:",sep="\n")
         dumpseq_1 = dumpseq_1.fillna(-1)
         print("                   )          \,           .o;o'           ,o'o'o.","                 ./          /\o;o,,,,,;o;o;''         _,-o,-'''-o:o.","  .             ./o./)        \    'o'o'o''         _,-'o,o'         o",sep="\n")
-        dumpseq_1.loc[:,'id_mpae'] = dumpseq_1.apply(lambda row: str(row.module)+'_'+str(row.path)+'_'+str(row.activity)+'_'+str(row.exerciceseq), axis=1)
+        dumpseq_1.loc[:,'id_mpae'] = dumpseq_1.apply(lambda row: [int(row.module),int(row.path),int(row.activity),int(row.exerciceseq)], axis=1)
         print("  o           ./o./ /       .o \.              __,-o o,o'","  \o.       ,/o /  /o/)     | o o'-..____,,-o'o o_o-'","  `o:o...-o,o-' ,o,/ |     \   'o.o_o_o_o,o--''",sep="\n")
-        dumpseq_1.loc[:,'id_final_mpae'] = dumpseq_1.apply(lambda row: str(row.moduleseq)+'_'+str(row.pathseq)+'_'+str(row.activityseq)+'_'+str(row.exerciceseq), axis=1)
+        dumpseq_1.loc[:,'id_final_mpae'] = dumpseq_1.apply(lambda row: [int(row.moduleseq),int(row.pathseq),int(row.activityseq),int(row.exerciceseq)], axis=1)
         print("  .,  ``o-o'  ,.oo/   'o /\.o`.","  `o`o-....o'o,-'   /o /   \o \.                       ,o..         o","    ``o-o.o--      /o /      \o.o--..          ,,,o-o'o.--o:o:o,,..:o",sep="\n")
         diagnostique = dict_diagnostique(dumpseq_1)
         print("                  (oo(          `--o.o`o---o'o'o,o,-'''        o'o'o","                   \ o\              ``-o-o''''","    ,-o;o           \o \\","    ,-o;o           \o \\",sep="\n")
+        # we have to transform the id_mpae column in string :
+        dfnew = dumpseq_1[['id_mpae']].copy(deep=True)
+        pds.options.mode.chained_assignment = None
+        dumpseq_1['id_mpae'] = dfnew['id_mpae'].apply( lambda x : ''.join(str(e) for e in x) )
         dumpseq_1['diagnostique'] = dumpseq_1['id_mpae'].map(diagnostique)
+        dumpseq_1['id_mpae'] = dfnew['id_mpae'].apply( lambda x : list( int(e) for e in x ) )
         print("   /o/               )o )","  (o(               /o /","   \o\.       ...-o'o /",sep="\n")
-        dumpseq_1.to_pickle((os.path.join(".","data", "sequences_data_v2.pk1")))
+        dumpseq_1.to_pickle((os.path.join(".","data", f"sequences_data_{today}.pk1")))
         print("    \ o`o`-o'o o,o,--'","       ```o--'''",sep="\n")
         print("\nsequences dataframe built")
         
     if option == 2: #save 1 pandas dataframe : trackings
         
-        print("building data for trackings file, step 1 over 2\n")
-        json_to_csv_seq('jsonfile_to_csv_sequences2','transformed_sequences_original_v2')
+        print("\nbuilding sequences data\n")
+        to_workable_json(original_json_sequences_name)
+        json_to_csv_seq('jsonfile_to_csv_sequences2',f'transformed_{original_json_sequences_name}')
         print("                                              ,","                                             ,o","                                             :o",sep="\n")
         dumpseq_1 = csv_to_dataframe('jsonfile_to_csv_sequences2',['moduleseq','pathseq','activityseq','exerciceseq','difficultyseq','module','path','activity','id_eleve','reponse','reponse_correcte','correct'])
         print("                    _....._                  `:o","                  .'       ``-.                \o","                 /  _      _   \                \o",sep="\n")
@@ -394,20 +453,25 @@ def transform_data(option):
         print("                 \  (\_____/) /                  /o","                  \   UQDKR  (                  /o","                   \         (                ,o:",sep="\n")
         dumpseq_1 = dumpseq_1.fillna(-1)
         print("                   )          \,           .o;o'           ,o'o'o.","                 ./          /\o;o,,,,,;o;o;''         _,-o,-'''-o:o.","  .             ./o./)        \    'o'o'o''         _,-'o,o'         o",sep="\n")
-        dumpseq_1.loc[:,'id_mpae'] = dumpseq_1.apply(lambda row: str(row.module)+'_'+str(row.path)+'_'+str(row.activity)+'_'+str(row.exerciceseq), axis=1)
+        dumpseq_1.loc[:,'id_mpae'] = dumpseq_1.apply(lambda row: [int(row.module),int(row.path),int(row.activity),int(row.exerciceseq)], axis=1)
         print("  o           ./o./ /       .o \.              __,-o o,o'","  \o.       ,/o /  /o/)     | o o'-..____,,-o'o o_o-'","  `o:o...-o,o-' ,o,/ |     \   'o.o_o_o_o,o--''",sep="\n")
-        dumpseq_1.loc[:,'id_final_mpae'] = dumpseq_1.apply(lambda row: str(row.moduleseq)+'_'+str(row.pathseq)+'_'+str(row.activityseq)+'_'+str(row.exerciceseq), axis=1)
+        dumpseq_1.loc[:,'id_final_mpae'] = dumpseq_1.apply(lambda row: [int(row.moduleseq),int(row.pathseq),int(row.activityseq),int(row.exerciceseq)], axis=1)
         print("  .,  ``o-o'  ,.oo/   'o /\.o`.","  `o`o-....o'o,-'   /o /   \o \.                       ,o..         o","    ``o-o.o--      /o /      \o.o--..          ,,,o-o'o.--o:o:o,,..:o",sep="\n")
         diagnostique = dict_diagnostique(dumpseq_1)
         print("                  (oo(          `--o.o`o---o'o'o,o,-'''        o'o'o","                   \ o\              ``-o-o''''","    ,-o;o           \o \\","    ,-o;o           \o \\",sep="\n")
+        # we have to transform the id_mpae column in string :
+        dfnew = dumpseq_1[['id_mpae']].copy(deep=True)
+        pds.options.mode.chained_assignment = None
+        dumpseq_1['id_mpae'] = dfnew['id_mpae'].apply( lambda x : ''.join(str(e) for e in x) )
         dumpseq_1['diagnostique'] = dumpseq_1['id_mpae'].map(diagnostique)
+        dumpseq_1['id_mpae'] = dfnew['id_mpae'].apply( lambda x : list( int(e) for e in x ) )
         print("   /o/               )o )","  (o(               /o /","   \o\.       ...-o'o /",sep="\n")
         print("    \ o`o`-o'o o,o,--'","       ```o--'''",sep="\n")
-        print("\nbuilding data for trackings file, step 2 over 2\n")
+        print("\nbuilding trackings data\n")
         
+        to_workable_json(original_json_trackings_name)
+        json_to_csv_track('jsonfile_to_csv_trackings2',f'transformed_{original_json_trackings_name}')
         print("                                                       ______","                                                     /    /_-._",sep="\n")
-        to_workable_json('trackings_original_v2')
-        json_to_csv_track('jsonfile_to_csv_trackings2','transformed_trackings_original_v2')
         print("                                                   / /_ ~~o\  :Y","                                                   / : \~x.  ` ')",sep="\n")
         dumptrack_2 = csv_to_dataframe('jsonfile_to_csv_trackings2',['token','module','path','activity','tms','exerciceId','isCorrect'])
         dico_etapes = remplir_etape()
@@ -417,15 +481,20 @@ def transform_data(option):
         print("                                                 UQDKR  l<  /.-~")
         dumptrack_2['etape'] = dumptrack_2.apply(lambda row: dico_etapes[(row.module,row.path,row.activity)],axis=1)
         print("                                                 ` l /~\ \<|Y")
-        dumptrack_2['id_mpa'] = dumptrack_2.apply(lambda row: str(row.module)+'_'+str(row.path)+'_'+str(row.activity), axis=1)
+        dumptrack_2['id_mpa'] = dumptrack_2.apply(lambda row: [int(row.module),int(row.path),int(row.activity)], axis=1)
         print("                                                    ',-~\ \L|")
-        dumptrack_2['id_mpae'] = dumptrack_2.apply(lambda row: str(row.module)+'_'+str(row.path)+'_'+str(row.activity)+'_'+str(row.exerciceId) if row.etape!=3 else 0, axis=1)
+        dumptrack_2['id_mpae'] = dumptrack_2.apply(lambda row: id_mpae_3_step(row), axis=1)
         print("'--.____  '--------.______       _.----.-----./      :/   '--'")
         dumptrack_2['date'] = dumptrack_2.apply(lambda row: (datetime.datetime.fromtimestamp(row.tms).year,datetime.datetime.fromtimestamp(row.tms).month,datetime.datetime.fromtimestamp(row.tms).day), axis=1)
         print("        '--.__            `'----/       '-.      __ :/")
         chatbot = set_essai(dumptrack_2)
         print("              '-.___           :           \   .'  )/")
+        # we have to transform the id_mpae column in string :
+        dfnew = chatbot[['id_mpae']].copy(deep=True)
+        pds.options.mode.chained_assignment = None
+        chatbot['id_mpae'] = dfnew['id_mpae'].apply( lambda x : ''.join(str(e) for e in x) )        
         chatbot['diagnostique'] = chatbot['id_mpae'].map(diagnostique)
+        chatbot['id_mpae'] = dfnew['id_mpae'].apply( lambda x : list( int(e) for e in x ) )
         chatbot.loc[chatbot['etape']!=1,'diagnostique'] = np.nan
         print("                    '---._           _.-'   ] /  _/")
         chatbot_new = duree(chatbot)
@@ -436,11 +505,13 @@ def transform_data(option):
         connection_index = get_index_connection(chatbot_new)
         chatbot_new['num_connection'] = chatbot_new.index.map(connection_index)
         print("                               <_______.\    \_\_---.7")
+        came_back = {}
         for idt in chatbot_new['token'].unique() :
             came_back[idt] = sum(chatbot_new[chatbot_new['token']==idt]['duree'] > 2700)
         print("                              |   /'=r_.-'     _\\ =/")
         chatbot_new['reconnections'] = chatbot_new['token'].map(came_back)
         print("                          .--'   /            ._/'>")
+        nbr_questions = {}
         for idt in chatbot_new['token'].unique() :
             nbr_questions[idt] = chatbot_new[chatbot_new['token']==idt].shape[0]
         print("                        .'   _.-'")
@@ -459,9 +530,10 @@ def transform_data(option):
        'jour', 'etape', 'id_mpa', 'id_mpae', 'date', 'essai',
        'tps+1', 'duree', 'num_connection', 'reconnections',
        'nbr_questions_faites', 'parcours_diagnostique', 'horaire']]
-       print("                      'c=,")
-        chatbot_final.to_pickle((os.path.join(".","data", "chatbot_data_v2.pk1")))
-        print("\ntrackings dataframe built")
+        print("                      'c=,")
+        chatbot_final.to_pickle((os.path.join(".","data", f"chatbot_data_{today}.pk1")))
+        
+        print("\nchatbot dataframe built from trackings and sequences data\n")
 
 def main(argv):
     if usage(argv) != 0:
@@ -469,8 +541,11 @@ def main(argv):
     if check_error(argv) != 0:
         exit(84)
     option = int(argv[1])
-    transform_data(option)
+    seq_name = str(argv[2])
+    track_name = str(argv[3])
+    transform_data(option, seq_name, track_name)
     return 0
 
 if __name__ == '__main__':
     main(sys.argv)
+
