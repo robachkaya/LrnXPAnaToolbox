@@ -95,7 +95,7 @@ def dropout_prediction(prediction_test, student_array_features):
     model.fit(X_train, Y_train)
     return model.predict( student_array_features ), model.score( X_test, Y_test )
 
-def final_recommendation_dataset(new_student_data, available_database, recommendation_dataset):
+def dropout_recommendation(new_student_data, available_database, recommendation_dataset):
     
     """ parameters :
         - new_student_data  : student for whom we produced 20 best questions
@@ -139,14 +139,14 @@ def final_recommendation_dataset(new_student_data, available_database, recommend
     from_list_to_str(recommendation_dataset,'question_id')
     
     print(f"WARNING : if UserWarning from sklearn\model_selection\_split : not enough participants for the question.")
-    for question in tqdm(recommendation_dataset['question_id']) :
-        prediction_test = dropout_prediction_training_data(available_database, module_concerned=question[0] , path_concerned=question[1], dropout_after_activity=question[2]).drop(['student'], axis = 1)
+    for question_id in tqdm(recommendation_dataset['question_id']) :
+        prediction_test = dropout_prediction_training_data(available_database, module_concerned=question_id[0] , path_concerned=question_id[1], dropout_after_activity=question_id[2]).drop(['student'], axis = 1)
         # student_dropout = 0 : the student will probably dropout
         # student_dropout = 1 : the student will probably continue
         student_dropout, confidence_rating = dropout_prediction(prediction_test, student_array_features)
         if confidence_rating > 0.86 :
             if student_dropout[0] == str(0) :
-                dropout_index = np.append( dropout_index, int(recommendation_dataset[recommendation_dataset['question_id']==question].index[0]) )
+                dropout_index = np.append( dropout_index, int(recommendation_dataset[recommendation_dataset['question_id']==question_id].index[0]) )
         
     from_str_to_list(recommendation_dataset,'question_id')
     new_recommendation_dataset = recommendation_dataset.drop(dropout_index, axis=0) # WARNING : new_recommendation_dataset could be an empty dataframe
@@ -161,7 +161,7 @@ def main(argv):
     new_student_data = argv[1]
     available_database = argv[2]
     recommendation_dataset = argv[3]
-    final_recommendation_dataset(new_student_data, available_database, recommendation_dataset)
+    dropout_recommendation(new_student_data, available_database, recommendation_dataset)
     return 0
 
 if __name__ == '__main__':

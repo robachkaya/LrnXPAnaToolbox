@@ -4,7 +4,7 @@
 ## recommander function
 
 from final_test_recommendation import recom_algorithm
-from dropout import final_recommendation_dataset
+from dropout import dropout_recommendation
 import pandas as pds
 import numpy as np
 import os
@@ -42,7 +42,7 @@ def check_error(argv):
 
 def algorithm(student_data, student_marks, students_df, marks_df):
     recom_quests = recom_algorithm(student_marks, marks_df)
-    quest_after_dropout = final_recommendation_dataset(student_data, students_df, recom_quests)
+    quest_after_dropout = dropout_recommendation(student_data, students_df, recom_quests)
     if quest_after_dropout.empty:
         quest_after_dropout = recom_quests
     return quest_after_dropout
