@@ -1,10 +1,9 @@
-#!/usr/bin/python3
-
 ## EVIDENCEB, 2020
 ## create marks for recommendation algorithm
 ## File description:
 ## create_marks function
 
+from lib import *
 import pandas as pds 
 import numpy as np
 import os
@@ -131,32 +130,6 @@ def complete_proba_matrix(proba, failure=False):
             participants.append(dict(row=couple[0],col=couple[1],value=v[0][1,0] + v[0][1,1]))
     return pds.DataFrame(matrix), pds.DataFrame(participants)
 
-def str_question_tolist(question):
-    to_return = list( int(e) for e in question )
-    if len(to_return)==5 :
-        new_return = to_return[:3]
-        new_return.append(int( str(to_return[3])+str(to_return[4]) ))
-        return new_return
-    else : 
-        return to_return
-    
-def list_question_tostr(question):
-    return ''.join(str(e) for e in question)
-
-def from_list_to_str(df):
-    # to avoid pandas error from manipulating lists in dataframe we convert question into string
-    dfnew = df[['id_mpae']].copy(deep=True)
-    pds.options.mode.chained_assignment = None
-    df['id_mpae'] = dfnew['id_mpae'].apply( lambda x : list_question_tostr(x) )
-    return df
-
-def from_str_to_list(df):
-    # to get a better visualisation of questions at the end of the algorithm
-    dfnew = df[['id_mpae']].copy(deep=True)
-    pds.options.mode.chained_assignment = None
-    df['id_mpae'] = dfnew['id_mpae'].apply( lambda x : str_question_tolist(x) )
-    return df
-
 def create_marks(pickle_file) :
 
     """ create_marks returns a dataframe with 3 columns the student, the question and the mark. This mark used to represent 
@@ -210,7 +183,7 @@ def create_marks(pickle_file) :
     database = pds.read_pickle(os.path.join(".","data", f"{pickle_file}.pk1"))
     DF = database[database['etape']!=3] 
 
-    from_list_to_str(DF)
+    from_list_to_str(DF,'id_mpae')
 
     print("                .---.  <    > <    >  .---.")
     dic_success = conditionnal_proba(DF, module=-1, path=-1, test=1, failure=False, get_proba_specific_path=False)
@@ -301,6 +274,7 @@ def create_marks(pickle_file) :
                         mark += 1 
 
         return id_eleve, str_question_tolist(id_mpae), int(mark)
+        
     tqdm.pandas()
     resultat = groupby_student_question.progress_apply(give_mark)
     return pds.DataFrame(list(resultat), columns = ['student', 'question', 'mark'])

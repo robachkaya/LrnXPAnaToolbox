@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 ## EVIDENCEB, 2020
 ## cluster_students.py
 ## File description:
@@ -30,23 +28,36 @@ def usage(argv): # argv = arguments passed to the script = cluster_students.py -
     return 0
 
 def check_error(argv): # argv = arguments passed to the script = cluster_students.py available_database new_student_data clustering_plot
-    if (len(argv) != 4) | (len(argv) != 3) :
+    if (len(argv) != 4) & (len(argv) != 3) :
         print("Wrong number of arguments, try \"-h\" for more informations")
         return 1
     if len(argv) == 4 :
         if argv[3] not in ['True','False'] :
             print("Argument have to be True if you want to see the graphic representation of the clustering or False if not.")
             return 1
-        if (argv[2].isidentifier() != True)|(argv[1].isidentifier() != True) :
-            print("available_database and new_student_data arguments have to be the name of pandas dataframe so : alphanumeric letters (a-z) and/or (0-9) and/or underscores (_).")
-            return 1
-    elif len(argv) == 3 :
-        if (argv[2].isidentifier() != True)|(argv[1].isidentifier() != True) :
-            print("available_database and new_student_data arguments have to be the name of pandas dataframe so : alphanumeric letters (a-z) and/or (0-9) and/or underscores (_).")
-            return 1
-    else :
+        else :
+            return 0
+    elif len(argv) != 3 :
         return 1
-    return 0
+    else :
+        return 0
+    #if (len(argv) != 4) & (len(argv) != 3) :
+    #    print("Wrong number of arguments, try \"-h\" for more informations")
+    #    return 1
+    #if len(argv) == 4 :
+    #    if argv[3] not in ['True','False'] :
+    #        print("Argument have to be True if you want to see the graphic representation of the clustering or False if not.")
+    #        return 1
+    #    if (argv[2].isidentifier() != True)|(argv[1].isidentifier() != True) :
+    #        print("available_database and new_student_data arguments have to be the name of pandas dataframe so : alphanumeric letters (a-z) and/or (0-9) and/or underscores (_).")
+    #        return 1
+    #elif len(argv) == 3 :
+    #    if (argv[2].isidentifier() != True)|(argv[1].isidentifier() != True) :
+    #        print("available_database and new_student_data arguments have to be the name of pandas dataframe so : alphanumeric letters (a-z) and/or (0-9) and/or underscores (_).")
+    #        return 1
+    #else :
+    #    return 1
+    #return 0
 
 def plot_clustering(DFVariables, DFKMEANS, nbr_clusters, nbr_components=3) :
     
@@ -59,7 +70,7 @@ def plot_clustering(DFVariables, DFKMEANS, nbr_clusters, nbr_components=3) :
     pca = PCA(svd_solver='full')
     pca.fit_transform(featuresPCA)
 
-    print(f"With 3 principal components we explain {round((pca.explained_variance_ratio_[0]+pca.explained_variance_ratio_[1]+pca.explained_variance_ratio_[2])*100,2)}% of the total information,\nthe default number of principal components is set to 3.")
+    print(f"\nWith 3 principal components we explain {round((pca.explained_variance_ratio_[0]+pca.explained_variance_ratio_[1]+pca.explained_variance_ratio_[2])*100,2)}% of the total information,\nthe default number of principal components is set to 3.")
 
     n = DFVariables.shape[0] # observations
     p = DFVariables.shape[1] # variables
@@ -85,6 +96,7 @@ def plot_clustering(DFVariables, DFKMEANS, nbr_clusters, nbr_components=3) :
 
     fig = plt.figure(figsize = (10,10))
     ax = fig.add_subplot(111, projection='3d') 
+    ax.view_init(25,-120)
     
     xAxisLine = ((min(principalComponents[:,0]), max(principalComponents[:,0])), (0, 0), (0,0))
     yAxisLine = ((0, 0), (min(principalComponents[:,1]), max(principalComponents[:,1])), (0,0))
@@ -96,7 +108,7 @@ def plot_clustering(DFVariables, DFKMEANS, nbr_clusters, nbr_components=3) :
     ax.set_title('3 Component PCA', fontsize = 20)
 
     targets = np.arange(nbr_clusters)
-    colors_to_chose = ['lightcyan','peachpuff','lightseagreen','seashell','b','g','r', 'c','m', 'y', 'k','sandybrown','peru','turquoise','aquamarine']
+    colors_to_chose = ['peachpuff','lightseagreen','peru','b','g','r', 'c','m', 'y', 'k','sandybrown','seashell','turquoise','aquamarine','lightcyan']
     colors = colors_to_chose[:nbr_clusters]
     for target, color in zip(targets,colors):
         indicesToKeep = finalDf['Cluster'] == target
@@ -107,6 +119,7 @@ def plot_clustering(DFVariables, DFKMEANS, nbr_clusters, nbr_components=3) :
                    , s = 50)
     ax.legend(targets)
     ax.grid()
+    plt.show()
 
 def creationDFClustering(available_database):
 
@@ -226,8 +239,10 @@ def similar_students(available_database, new_student_data, clustering_plot=False
     clustering = clustering_model.fit(normalized_data)
     DFKMEANS = X.copy()
     DFKMEANS['Cluster'] = clustering.labels_
-    if clustering_plot == True :
+    if str(clustering_plot) == 'True' :
+        print('\nClose the figure to continue.\n')
         plot_clustering(DFVariables, DFKMEANS, nbr_clusters)
+    print('return?',DFKMEANS.loc[:,['id_eleve','Cluster']], clustering_model.predict(student_array_features))
     return DFKMEANS.loc[:,['id_eleve','Cluster']], clustering_model.predict(student_array_features)
 
 def main(argv):
@@ -238,8 +253,8 @@ def main(argv):
     #available_database = argv[1]
     #new_student_data = argv[2]
     #TO TEST 
-    available_database = pds.read_pickle((os.path.join(".","data",argv[1])))
-    new_student_data = pds.read_pickle((os.path.join(".","data",argv[2])))
+    available_database = pds.read_pickle((os.path.join(".","data",str(argv[1]))))
+    new_student_data = pds.read_pickle((os.path.join(".","data",str(argv[2]))))
     if len(argv)==4:
         clustering_plot = argv[3]
         similar_students(available_database, new_student_data, clustering_plot)

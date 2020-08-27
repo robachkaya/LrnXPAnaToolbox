@@ -1,3 +1,7 @@
+## EVIDENCEB, 2020
+## recommander.py
+## File description:
+## recommander function
 
 from final_test_recommendation import recom_algorithm
 from dropout import final_recommendation_dataset
@@ -35,32 +39,6 @@ def check_error(argv):
             print("No such file or directory :", file)
             return 1
     return 0
-
-def str_question_tolist(question):
-    to_return = list( int(e) for e in question )
-    if len(to_return)==5 :
-        new_return = to_return[:3]
-        new_return.append(int( str(to_return[3])+str(to_return[4]) ))
-        return new_return
-    else : 
-        return to_return
-    
-def list_question_tostr(question):
-    return ''.join(str(e) for e in question)
-
-def from_list_to_str(df):
-    # to avoid pandas error from manipulating lists in dataframe we convert question into string
-    dfnew = df[['question_id']].copy(deep=True)
-    pds.options.mode.chained_assignment = None
-    df['question_id'] = dfnew['question_id'].apply( lambda x : list_question_tostr(x) )
-    return df
-
-def from_str_to_list(df):
-    # to get a better visualisation of questions at the end of the algorithm
-    dfnew = df[['question_id']].copy(deep=True)
-    pds.options.mode.chained_assignment = None
-    df['question_id'] = dfnew['question_id'].apply( lambda x : str_question_tolist(x) )
-    return df
 
 def algorithm(student_data, student_marks, students_df, marks_df):
     recom_quests = recom_algorithm(student_marks, marks_df)

@@ -5,33 +5,9 @@ import matplotlib.pyplot as plt
 import matplotlib
 import os
 
-def str_question_tolist(question):
-    to_return = list( int(e) for e in question )
-    if len(to_return)==5 :
-        new_return = to_return[:3]
-        new_return.append(int( str(to_return[3])+str(to_return[4]) ))
-        return new_return
-    else : 
-        return to_return
-    
-def list_question_tostr(question):
-    return ''.join(str(e) for e in question)
-
-def from_list_to_str(df):
-    dfnew = df[['question_id']].copy(deep=True)
-    pds.options.mode.chained_assignment = None
-    df['question_id'] = dfnew['question_id'].apply( lambda x : list_question_tostr(x) )
-    return df
-
-def from_str_to_list(df):
-    dfnew = df[['question_id']].copy(deep=True)
-    pds.options.mode.chained_assignment = None
-    df['question_id'] = dfnew['question_id'].apply( lambda x : str_question_tolist(x) )
-    return df
-
 def recom_algorithm(userinput_df, students_df) :
-    userinput_df = from_list_to_str(userinput_df)
-    students_df = from_list_to_str(students_df)
+    userinput_df = from_list_to_str(userinput_df,'question_id')
+    students_df = from_list_to_str(students_df,'question_id')
 
 # Beginning of the collaborative filtering.
 
@@ -97,7 +73,6 @@ def recom_algorithm(userinput_df, students_df) :
     questions_df.columns = ['question_id']
     recommendation_df = recommendation_df.reset_index(drop=True)
 # Sort weighted average and see the top 20 questions the algorithm recommended
-    #recommendation_df = from_str_to_list(recommendation_df)
     recom = recommendation_df.loc[questions_df['question_id'].isin(recommendation_df['question_id'])]
     pds.set_option("display.max_rows", None, "display.max_columns", None)
     return recom.head(20)

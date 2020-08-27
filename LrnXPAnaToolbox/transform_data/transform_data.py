@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 ## EVIDENCEB, 2020
 ## transform_data.py
 ## File description:

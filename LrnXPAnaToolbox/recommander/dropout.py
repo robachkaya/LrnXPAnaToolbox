@@ -6,6 +6,7 @@
 ## dropout function
 
 import sys
+from lib import *
 import pandas as pds
 import numpy as np
 import os
@@ -35,33 +36,7 @@ def check_error(argv): # argv = arguments passed to the script = dropout.py new_
         print("new_student_data, available_database and recommendation_dataset arguments have to be the name of pandas dataframe so : alphanumeric letters (a-z) and/or (0-9) and/or underscores (_).")   
         return 1
     return 0
-
-def str_question_tolist(question):
-    to_return = list( int(e) for e in question )
-    if len(to_return)==5 :
-        new_return = to_return[:3]
-        new_return.append(int( str(to_return[3])+str(to_return[4]) ))
-        return new_return
-    else : 
-        return to_return
     
-def list_question_tostr(question):
-    return ''.join(str(e) for e in question)
-
-def from_list_to_str(df):
-    # to avoid pandas error from manipulating lists in dataframe we convert question into string
-    dfnew = df[['question_id']].copy(deep=True)
-    pds.options.mode.chained_assignment = None
-    df['question_id'] = dfnew['question_id'].apply( lambda x : list_question_tostr(x) )
-    return df
-
-def from_str_to_list(df):
-    # to get a better visualisation of questions at the end of the algorithm
-    dfnew = df[['question_id']].copy(deep=True)
-    pds.options.mode.chained_assignment = None
-    df['question_id'] = dfnew['question_id'].apply( lambda x : str_question_tolist(x) )
-    return df
-
 def dropout_prediction_training_data(dataset, module_concerned, path_concerned, dropout_after_activity):
     module_concerned = int(module_concerned)
     path_concerned = int(path_concerned)
@@ -161,7 +136,7 @@ def final_recommendation_dataset(new_student_data, available_database, recommend
     # question in recommendation_dataset are supposed to be list of the form [module, parcours, activite, exo]
     
     # to avoid pandas error from manipulating lists in dataframe we convert question into string
-    from_list_to_str(recommendation_dataset)
+    from_list_to_str(recommendation_dataset,'question_id')
     
     print(f"WARNING : if UserWarning from sklearn\model_selection\_split : not enough participants for the question.")
     for question in tqdm(recommendation_dataset['question_id']) :
@@ -172,7 +147,7 @@ def final_recommendation_dataset(new_student_data, available_database, recommend
         if student_dropout[0] == str(0) :
             dropout_index = np.append( dropout_index, int(recommendation_dataset[recommendation_dataset['question_id']==question].index[0]) )
     
-    from_str_to_list(recommendation_dataset)
+    from_str_to_list(recommendation_dataset,'question_id')
     new_recommendation_dataset = recommendation_dataset.drop(dropout_index, axis=0) # WARNING : new_recommendation_dataset could be an empty dataframe
 
     return new_recommendation_dataset
