@@ -12,7 +12,7 @@ import numpy as np
 import os
 import datetime
 from tqdm import tqdm
-from tqdm.auto import tqdm 
+from tqdm.auto import tqdm
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.tree import DecisionTreeClassifier
 
@@ -33,10 +33,10 @@ def check_error(argv): # argv = arguments passed to the script = dropout.py new_
         print("Wrong number of arguments, try \"-h\" for more informations")
         return 1
     if (argv[1].isidentifier() != True)|(argv[2].isidentifier() != True)|(argv[3].isidentifier() != True):
-        print("new_student_data, available_database and recommendation_dataset arguments have to be the name of pandas dataframe so : alphanumeric letters (a-z) and/or (0-9) and/or underscores (_).")   
+        print("new_student_data, available_database and recommendation_dataset arguments have to be the name of pandas dataframe so : alphanumeric letters (a-z) and/or (0-9) and/or underscores (_).")
         return 1
     return 0
-    
+
 def dropout_prediction_training_data(dataset, module_concerned, path_concerned, dropout_after_activity):
     module_concerned = int(module_concerned)
     path_concerned = int(path_concerned)
@@ -71,7 +71,7 @@ def dropout_prediction_training_data(dataset, module_concerned, path_concerned, 
                 # 5th feature : the timeslot of the connection
                 timeslot = student_groupby.iloc[0]['horaire']
                 d[student].append( timeslot )
-                # last feature : 
+                # last feature :
                 # 0 if the student dropout
                 # 1 if the student will reach the next activity : the activity after the activity dropout_after_activity
                 if student_groupby[ student_groupby.activity == dropout_after_activity + 1 ].shape[0] == 0 :
@@ -96,7 +96,7 @@ def dropout_prediction(prediction_test, student_array_features):
     return model.predict( student_array_features ), model.score( X_test, Y_test )
 
 def dropout_recommendation(new_student_data, available_database, recommendation_dataset):
-    
+
     """ parameters :
         - new_student_data  : student for whom we produced 20 best questions
           (there must be the columns : student, duree, correct, etape, jour, horaire)
@@ -107,7 +107,7 @@ def dropout_recommendation(new_student_data, available_database, recommendation_
         - recommendation_dataset of the 20 best questions to propose, columns  ['student_id','question_id','rating'].
         returns :
         - the recommendation_dataset modified """
-    
+
     # if the available_database contains the student data :
     # we can get the following data for student_array_features with the available_database
     # else : we get student information thanks to the new_student_data parameter
@@ -131,13 +131,13 @@ def dropout_recommendation(new_student_data, available_database, recommendation_
     # 5th feature : the timeslot of the connection
     timeslot = new_student_data.iloc[0]['horaire']
     student_array_features = np.append( student_array_features, timeslot )
-    dropout_index = np.array([])  
+    dropout_index = np.array([])
     student_array_features = np.array([student_array_features])
     # question in recommendation_dataset are supposed to be list of the form [module, parcours, activite, exo]
-    
+
     # to avoid pandas error from manipulating lists in dataframe we convert question into string
     from_list_to_str(recommendation_dataset,'question_id')
-    
+
     print(f"WARNING : if UserWarning from sklearn\model_selection\_split : not enough participants for the question.")
     for question_id in tqdm(recommendation_dataset['question_id']) :
         prediction_test = dropout_prediction_training_data(available_database, module_concerned=question_id[0] , path_concerned=question_id[1], dropout_after_activity=question_id[2]).drop(['student'], axis = 1)
@@ -147,7 +147,7 @@ def dropout_recommendation(new_student_data, available_database, recommendation_
         if confidence_rating > 0.86 :
             if student_dropout[0] == str(0) :
                 dropout_index = np.append( dropout_index, int(recommendation_dataset[recommendation_dataset['question_id']==question_id].index[0]) )
-        
+
     from_str_to_list(recommendation_dataset,'question_id')
     new_recommendation_dataset = recommendation_dataset.drop(dropout_index, axis=0) # WARNING : new_recommendation_dataset could be an empty dataframe
 

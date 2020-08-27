@@ -1,7 +1,7 @@
 ## EVIDENCEB, 2020
 ## library of function to use
 ## File description:
-## functions to use in order to avoid pandas problem working with list 
+## functions to use in order to avoid pandas problem working with list
 
 def str_question_tolist(question):
     to_return = list( int(e) for e in question )
@@ -9,9 +9,9 @@ def str_question_tolist(question):
         new_return = to_return[:3]
         new_return.append(int( str(to_return[3])+str(to_return[4]) ))
         return new_return
-    else : 
+    else :
         return to_return
-    
+
 def list_question_tostr(question):
     return ''.join(str(e) for e in question)
 

@@ -84,4 +84,3 @@ def recom_algorithm(userinput_df, students_df) :
 #    pds.options.mode.chained_assignment = None
 #    recommendation_dataset['question_id'] = dfnew['question_id'].apply( lambda x : list_question_tostr(x) )
 #    recommendation_dataset['question_id'] = dfnew['question_id'].apply( lambda x : str_question_tolist(x) )
-    

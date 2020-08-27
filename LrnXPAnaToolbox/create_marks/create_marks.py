@@ -4,12 +4,12 @@
 ## create_marks function
 
 from lib import *
-import pandas as pds 
+import pandas as pds
 import numpy as np
 import os
 import sys
 from tqdm import tqdm
-from tqdm.auto import tqdm 
+from tqdm.auto import tqdm
 import datetime
 from pandas import Panel
 
@@ -34,19 +34,19 @@ def check_error(argv): # argv = arguments passed to the script = create_marks.py
     return 0
 
 def conditionnal_proba(dataset, module, path, test, failure=False, get_proba_specific_path=False):
-    """ conditionnal proba function returns a dictionnary with a couple of question as key : 
-        (q1, q2) and 2 elements as values : 
-        - the first one : a contingency table 
+    """ conditionnal proba function returns a dictionnary with a couple of question as key :
+        (q1, q2) and 2 elements as values :
+        - the first one : a contingency table
         - the second one : the probability value of the conditionnal event : answer correctly to q2 given q1 correct
-        This function has 2 boolean parameters set as default to False : 
+        This function has 2 boolean parameters set as default to False :
         - failure which specifies if we want to get the conditionnal probability of success (if false) or failure (if true)
-        - get_proba_specific_path specifies if we want to specify a path and a module to focus on (if true) or not (if false) 
-        module and path are unuseful parameters if get_proba_specific_path is set as False so just put an integer to launch 
-        the function ; if get_proba_specific_path is set as True, module and path are here to specify the path to focus on and 
+        - get_proba_specific_path specifies if we want to specify a path and a module to focus on (if true) or not (if false)
+        module and path are unuseful parameters if get_proba_specific_path is set as False so just put an integer to launch
+        the function ; if get_proba_specific_path is set as True, module and path are here to specify the path to focus on and
         from which we want to get the probability matrix of questions.
-        
+
         EXAMPLE ------------------------------------------------------
-        import pandas as pds 
+        import pandas as pds
         import numpy as np
         import os
         database = pds.read_pickle(os.path.join(".","data", "chatbot_data.pk1")).iloc[:5]
@@ -58,7 +58,7 @@ def conditionnal_proba(dataset, module, path, test, failure=False, get_proba_spe
     else :
         data = dataset[(dataset['etape']!=3)&(dataset['essai']==test)][['id_eleve','id_mpae','correct','essai']]
     dic_data = {}
-    for i in range(data.shape[0]): 
+    for i in range(data.shape[0]):
         # for each student as dictionnary key we give a list [id_mpae, correct, test number]
         key = data.iloc[i]['id_eleve']
         if key not in dic_data:
@@ -77,9 +77,9 @@ def conditionnal_proba(dataset, module, path, test, failure=False, get_proba_spe
                     P[couple] = np.array([ np.zeros((2, 2)) , 0 ])
                 # to complete the contingency table :
                 # if q1 correct : q1_ok = 1 else q1 uncorrect : q1_ok = 0 :
-                q1_ok = 1 if q1[-1] else 0 
+                q1_ok = 1 if q1[-1] else 0
                 # if q2 correct : q2_ok = 1 else q2 uncorrect : q2_ok = 0 :
-                q2_ok = 1 if q2[-1] else 0 
+                q2_ok = 1 if q2[-1] else 0
                 # [q1_ok,q2_ok] is the box in the grid where we count the number of participants
                 P[couple][0][q1_ok, q2_ok] += 1
     for couple in P :
@@ -98,15 +98,15 @@ def conditionnal_proba(dataset, module, path, test, failure=False, get_proba_spe
     return P
 
 def complete_proba_matrix(proba, failure=False):
-    """ complete_proba_matrix return 2 dataframe (= table = matrix). The first one representing the conditionnal 
-        probability matrix of success or failure for answering to question in column given the answer to question 
-        in row. The second one with the value of the participant for each couple of question. The proba parameter 
-        is a dictionnary of the form of the one returned by conditionnal_proba. The failure parameter is the same 
-        as previously : it specifies if we want to get the conditionnal probability of success (if false) or 
+    """ complete_proba_matrix return 2 dataframe (= table = matrix). The first one representing the conditionnal
+        probability matrix of success or failure for answering to question in column given the answer to question
+        in row. The second one with the value of the participant for each couple of question. The proba parameter
+        is a dictionnary of the form of the one returned by conditionnal_proba. The failure parameter is the same
+        as previously : it specifies if we want to get the conditionnal probability of success (if false) or
         failure (if true).
-        
+
         EXAMPLE ------------------------------------------------------
-        import pandas as pds 
+        import pandas as pds
         import numpy as np
         import os
         database = pds.read_pickle(os.path.join(".","data", "chatbot_data.pk1")).iloc[:5]
@@ -132,15 +132,15 @@ def complete_proba_matrix(proba, failure=False):
 
 def create_marks(pickle_file) :
 
-    """ create_marks returns a dataframe with 3 columns the student, the question and the mark. This mark used to represent 
-        the learning achieved by the student with the exercise. More the mark has a high value, more the question is useful 
-        for the learning of the student. One of the tenets of this function is that : making mistakes is useful. 
-        This function takes 1 parameters : 
+    """ create_marks returns a dataframe with 3 columns the student, the question and the mark. This mark used to represent
+        the learning achieved by the student with the exercise. More the mark has a high value, more the question is useful
+        for the learning of the student. One of the tenets of this function is that : making mistakes is useful.
+        This function takes 1 parameters :
         - the pickle file (at the string format) to transform to pandas dataframe which used to be of the form :
           (You can get one pickle like this one with LrnXPAnaToolbox.transform_data from a json file).
           columns :
-            Index(['id_eleve', 'module', 'path', 'activity', 'tps_posix', 'exercice', 'correct', 'jour', 'etape', 'id_mpa', 
-            'id_mpae', 'date', 'essai', 'tps+1', 'duree', 'num_connection', 'reconnections', 'nbr_questions_faites', 
+            Index(['id_eleve', 'module', 'path', 'activity', 'tps_posix', 'exercice', 'correct', 'jour', 'etape', 'id_mpa',
+            'id_mpae', 'date', 'essai', 'tps+1', 'duree', 'num_connection', 'reconnections', 'nbr_questions_faites',
             'parcours_diagnostique', 'horaire'], dtype='object')
           columns type :
             id_eleve                  object
@@ -165,7 +165,7 @@ def create_marks(pickle_file) :
             horaire                  float64
 
         EXAMPLE --------------------------------------------------------------------------------------------------
-        import pandas as pds 
+        import pandas as pds
         import numpy as np
         import os
         from sklearn.feature_extraction import DictVectorizer
@@ -173,15 +173,15 @@ def create_marks(pickle_file) :
         from sklearn.tree import DecisionTreeClassifier
 
         create_marks_2( "chatbot_data.pk1" )
-        
+
         # one row of the pandas dataframe called returned is :
         #           student                question         mark
         #   97   7085AA80-B1EA-4D...     (2, 0, 0, 5)        3 """
-    
+
     print("start computing data to create marks")
     print("                        / `.   .' \\")
     database = pds.read_pickle(os.path.join(".","data", f"{pickle_file}.pk1"))
-    DF = database[database['etape']!=3] 
+    DF = database[database['etape']!=3]
 
     from_list_to_str(DF,'id_mpae')
 
@@ -222,7 +222,7 @@ def create_marks(pickle_file) :
 
     def give_mark(data_student_question):
         id_eleve, id_mpae = data_student_question[['id_eleve','id_mpae']].iloc[0]
-        mark = 1 
+        mark = 1
         question_first_test_date = min(data_student_question.tps_posix)
         question_first_test_connection = data_student_question[ data_student_question.tps_posix==question_first_test_date ]['num_connection'].values[0]
         # We look at the first and second test on the first connection for this question :
@@ -235,7 +235,7 @@ def create_marks(pickle_file) :
             student_tried_idmpae = data_student_question[ data_student_question.essai==1 ]
             question_connections = np.array(student_tried_idmpae['num_connection'].unique())
             question_dates = np.array(student_tried_idmpae['tps_posix'].unique())
-            # check if the student didnt try any other exercise after the question 
+            # check if the student didnt try any other exercise after the question
             df_student_other_question = dataset[ (dataset.id_eleve==id_eleve) & (dataset.id_mpae!=id_mpae) ]
             def student_didnt_try_anything_after(i_connection):
                 return df_student_other_question[ (df_student_other_question.num_connection==question_connections[i_connection]) & (df_student_other_question.tps_posix>question_dates[i_connection]) ].shape[0] == 0
@@ -248,13 +248,13 @@ def create_marks(pickle_file) :
             if probability_of_dropout > 0.5 :
                 mark -= 1
             else :
-                mark += 1 
+                mark += 1
             # test if the average reponse time is quite long whereas the student got right at the first try
             if question_first_test['correct'].iloc[0] == True:
                 if question_first_test['tps_posix'].iloc[0] > (q3_time[id_mpae]+q2_time[id_mpae]) / 2 :
                     mark += 1
             else:
-                # test if the student got right at the second try  
+                # test if the student got right at the second try
                 if question_second_test.shape[0] != 0 :
                     if question_second_test['correct'].iloc[0] == True :
                         mark += 1
@@ -271,10 +271,10 @@ def create_marks(pickle_file) :
                     mark += 1
                 elif question_second_test.shape[0] != 0 :
                     if question_second_test['correct'].iloc[0] == False :
-                        mark += 1 
+                        mark += 1
 
         return id_eleve, str_question_tolist(id_mpae), int(mark)
-        
+
     tqdm.pandas()
     resultat = groupby_student_question.progress_apply(give_mark)
     return pds.DataFrame(list(resultat), columns = ['student', 'question', 'mark'])

@@ -4,7 +4,7 @@
 ## cluster students function
 
 import pandas as pds
-import numpy as np 
+import numpy as np
 import os
 from matplotlib import pyplot as plt
 from sklearn.cluster import KMeans, MiniBatchKMeans, AgglomerativeClustering
@@ -60,7 +60,7 @@ def check_error(argv): # argv = arguments passed to the script = cluster_student
     #return 0
 
 def plot_clustering(DFVariables, DFKMEANS, nbr_clusters, nbr_components=3) :
-    
+
     # standardisation
 
     featuresPCA = DFVariables.copy()
@@ -76,16 +76,16 @@ def plot_clustering(DFVariables, DFKMEANS, nbr_clusters, nbr_components=3) :
     p = DFVariables.shape[1] # variables
 
     # SCREE PLOT
-    # corrected explained variance 
-    # var = (n-1)/n*pca.explained_variance_ 
+    # corrected explained variance
+    # var = (n-1)/n*pca.explained_variance_
     # threshold for the scree plot
-    # bs = 1/np.arange(p,0,-1) 
+    # bs = 1/np.arange(p,0,-1)
     # bs = np.cumsum(bs)
-    # bs = bs[::-1]  
+    # bs = bs[::-1]
     # scree plot values : we want eigenvalue > threshold
     # print(pds.DataFrame({'eigenvalue':var,'threshold':bs}))
 
-    # 3D PCA Projection : 
+    # 3D PCA Projection :
 
     pca = PCA(n_components=nbr_components)
     principalComponents = pca.fit_transform(featuresPCA)
@@ -95,13 +95,13 @@ def plot_clustering(DFVariables, DFKMEANS, nbr_clusters, nbr_components=3) :
     finalDf = pds.concat([principalDf, DFKMEANS[['Cluster']]], axis = 1)
 
     fig = plt.figure(figsize = (10,10))
-    ax = fig.add_subplot(111, projection='3d') 
+    ax = fig.add_subplot(111, projection='3d')
     ax.view_init(25,-120)
-    
+
     xAxisLine = ((min(principalComponents[:,0]), max(principalComponents[:,0])), (0, 0), (0,0))
     yAxisLine = ((0, 0), (min(principalComponents[:,1]), max(principalComponents[:,1])), (0,0))
     zAxisLine = ((0, 0), (0,0), (min(principalComponents[:,2]), max(principalComponents[:,2])))
-    
+
     ax.set_xlabel('Principal Component 1', fontsize = 15)
     ax.set_ylabel('Principal Component 2', fontsize = 15)
     ax.set_zlabel('Principal Component 3', fontsize = 15)
@@ -141,7 +141,7 @@ def creationDFClustering(available_database):
         # we add the success rate
         d[student].append( student_data[student_data.correct == True].shape[0]/student_data.shape[0] )
 
-        # we add the path assigned to the student 
+        # we add the path assigned to the student
         path_data = student_data[student_data.etape == 2]
         if path_data.shape[0] == 0 :
             d[student].append(0)
@@ -155,11 +155,11 @@ def creationDFClustering(available_database):
         # we add the number of questions the student tried
         d[student].append( student_data.shape[0] )
 
-        # we add the day 
+        # we add the day
         day = student_data.iloc[0]['jour']
         d[student].append( day )
 
-        # we add the timeslot 
+        # we add the timeslot
         timeslot = student_data.iloc[0]['horaire']
         d[student].append( timeslot )
 
@@ -169,18 +169,18 @@ def creationDFClustering(available_database):
     return df
 
 def optimal_n_clusters(data, clustering_method, nbr_students):
-    
+
     # how to choose the best number of clusters between 3 and 30 ?
-    
+
     optimal = False
-    
+
     while optimal == False :
 
         choice = np.array([])
         population_min = np.array([])
 
         for k in range(28): # k : 0+3 > 27+3
-            
+
             cls = clustering_method(n_clusters=k+3)
             cls.fit(data)
             groups = cls.labels_
@@ -190,10 +190,10 @@ def optimal_n_clusters(data, clustering_method, nbr_students):
                 choice = np.append(choice, metrics.silhouette_score(data, groups))
             else :
                 choice = np.append(choice, -1)
-       
+
         if np.mean( choice ) != -1 :
             optimal = True
-            
+
     return np.flip(np.argsort(choice)[-3:])+3
 
 def similar_students(available_database, new_student_data, clustering_plot=False) :
@@ -208,7 +208,7 @@ def similar_students(available_database, new_student_data, clustering_plot=False
     student_array_features = np.append( student_array_features, sum(new_student_data.duree)/(new_student_data.shape[0]) )
     # we add the success rate
     student_array_features = np.append( student_array_features,new_student_data[new_student_data.correct == True].shape[0]/new_student_data.shape[0] )
-    # we add the path assigned to the student 
+    # we add the path assigned to the student
     # WARNING : if the student has done 2 modules at his/her first connection we'll have 2 assigned path, which one to choose?
     path_data = new_student_data[new_student_data.etape == 2]
     if path_data.shape[0] == 0 :
@@ -220,16 +220,16 @@ def similar_students(available_database, new_student_data, clustering_plot=False
     student_array_features = np.append( student_array_features,sum(new_student_data.duree) )
     # we add the number of questions the student tried
     student_array_features = np.append( student_array_features,new_student_data.shape[0] )
-    # we add the day 
+    # we add the day
     day = new_student_data.iloc[0]['jour']
     student_array_features = np.append( student_array_features,day )
-    # we add the timeslot 
+    # we add the timeslot
     timeslot = new_student_data.iloc[0]['horaire']
     student_array_features = np.append( student_array_features,timeslot )
     student_array_features = np.array([student_array_features])
 
     clustering_method = MiniBatchKMeans # the MiniBatchKMeans is the best method for our data, so num_method default value is set to 1.
-    X = creationDFClustering(available_database)  
+    X = creationDFClustering(available_database)
     nbr_students = len(X['id_eleve'].unique())
     DFVariables = X.drop(['id_eleve'], axis = 1)
     DFVariables = DFVariables.apply(pds.to_numeric)
