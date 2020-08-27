@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from .final_test_recommendation import recom_algorithm
+from .final_recommendation import recom_algorithm
 from .dropout import dropout_recommendation
 from LrnXPAnaToolbox.cluster_students.cluster_students import similar_students
 import pandas as pds
