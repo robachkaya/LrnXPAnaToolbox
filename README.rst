@@ -92,15 +92,27 @@ As it is the case for the cluster_students function this function takes a new st
 How to use
 --------
 
-    pip install LrnXPAnaToolbox
+    .pip install LrnXPAnaToolbox
 
 If any problem prevent you to install the package you can :
+
 * create a folder to cole the repository package
+
 * in the folder :
-    git clone https://github.com/robachkaya/LrnXPAnaToolbox OR git clone git@github.com:robachkaya/LrnXPAnaToolbox.git
-    python setup.py install
+
+    .git clone https://github.com/robachkaya/LrnXPAnaToolbox
+
+Or
+
+    .git clone git@github.com:robachkaya/LrnXPAnaToolbox.git
+
+Then
+
+    .python setup.py install
+
 * go to the first folder name LrnXPAnaToolbox (where you can find a requirements_dev.txt)
-    pip install -r requirements_dev.txt
+
+    .pip install -r requirements_dev.txt
 
 
 
@@ -116,6 +128,8 @@ Features
 --------
 
 * TODO
+
+
 
 Credits
 -------
