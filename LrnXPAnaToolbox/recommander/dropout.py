@@ -6,7 +6,7 @@
 ## dropout function
 
 import sys
-from lib import *
+from LrnXPAnaToolbox.lib import *
 import pandas as pds
 import numpy as np
 import os

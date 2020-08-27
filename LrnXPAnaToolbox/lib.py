@@ -3,6 +3,8 @@
 ## File description:
 ## functions to use in order to avoid pandas problem working with list
 
+import pandas as pds
+
 def str_question_tolist(question):
     to_return = list( int(e) for e in question )
     if len(to_return)==5 :

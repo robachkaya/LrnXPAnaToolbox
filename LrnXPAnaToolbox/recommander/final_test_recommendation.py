@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import os
-from lib import *
+from LrnXPAnaToolbox.lib import *
 
 def recom_algorithm(userinput_df, students_df) :
     userinput_df = from_list_to_str(userinput_df,'question_id')
