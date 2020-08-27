@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
-from recom_test_final import recom_algorithm
-from dropout import dropout_recommendation
-from cluster_students import similar_students
+from .final_test_recommendation import recom_algorithm
+from .dropout import dropout_recommendation
+from LrnXPAnaToolbox.cluster_students.cluster_students import similar_students
 import pandas as pds
 import numpy as np
 import os
@@ -49,7 +49,6 @@ def algorithm(student_data, student_marks, students_df, marks_df):
     quest_after_dropout = dropout_recommendation(student_data, students_df, recom_quests)
     if quest_after_dropout.empty:
         quest_after_dropout = recom_quests
-    print(quest_after_dropout)
     return quest_after_dropout
 
 def get_files(argv):
