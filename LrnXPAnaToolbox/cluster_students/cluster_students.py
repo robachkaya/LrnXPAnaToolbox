@@ -242,7 +242,6 @@ def similar_students(available_database, new_student_data, clustering_plot=False
     if str(clustering_plot) == 'True' :
         print('\nClose the figure to continue.\n')
         plot_clustering(DFVariables, DFKMEANS, nbr_clusters)
-    print('return?',DFKMEANS.loc[:,['id_eleve','Cluster']], clustering_model.predict(student_array_features))
     return DFKMEANS.loc[:,['id_eleve','Cluster']], clustering_model.predict(student_array_features)
 
 def main(argv):
@@ -250,11 +249,8 @@ def main(argv):
         exit(0)
     if check_error(argv) != 0:
         exit(84)
-    #available_database = argv[1]
-    #new_student_data = argv[2]
-    #TO TEST 
-    available_database = pds.read_pickle((os.path.join(".","data",str(argv[1]))))
-    new_student_data = pds.read_pickle((os.path.join(".","data",str(argv[2]))))
+    available_database = argv[1]
+    new_student_data = argv[2]
     if len(argv)==4:
         clustering_plot = argv[3]
         similar_students(available_database, new_student_data, clustering_plot)

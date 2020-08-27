@@ -144,9 +144,10 @@ def final_recommendation_dataset(new_student_data, available_database, recommend
         # student_dropout = 0 : the student will probably dropout
         # student_dropout = 1 : the student will probably continue
         student_dropout, confidence_rating = dropout_prediction(prediction_test, student_array_features)
-        if student_dropout[0] == str(0) :
-            dropout_index = np.append( dropout_index, int(recommendation_dataset[recommendation_dataset['question_id']==question].index[0]) )
-    
+        if confidence_rating > 0.86 :
+            if student_dropout[0] == str(0) :
+                dropout_index = np.append( dropout_index, int(recommendation_dataset[recommendation_dataset['question_id']==question].index[0]) )
+        
     from_str_to_list(recommendation_dataset,'question_id')
     new_recommendation_dataset = recommendation_dataset.drop(dropout_index, axis=0) # WARNING : new_recommendation_dataset could be an empty dataframe
 

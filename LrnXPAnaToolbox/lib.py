@@ -28,6 +28,4 @@ def from_str_to_list(df,column_name):
     pds.options.mode.chained_assignment = None
     df[f"{column_name}"] = dfnew[f"{column_name}"].apply( lambda x : str_question_tolist(x) )
     return df
-k = 'new_student_dataset_2020-08-26.pk1'
-print(k.isidentifier())
 
