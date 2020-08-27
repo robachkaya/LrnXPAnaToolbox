@@ -67,7 +67,7 @@ def main(argv):
     if check_error(argv) != 0:
         return 84
     student_data, student_marks, students_df, marks_df = get_files(argv)
-    algorithm(student_data, student_marks, students_df, marks_df)
+    recommendation = algorithm(student_data, student_marks, students_df, marks_df)
     pds.set_option('display.max_columns', None)
     print(f"\n\n\nRECOMMENDATION QUESTION(S) FOR {student_data.iloc[0].id_eleve} : \n\n{recommendation}")
     return 0
