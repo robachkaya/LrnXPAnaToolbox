@@ -13,14 +13,96 @@ UQDKR LrnXPAnaToolbox
         :target: https://LrnXPAnaToolbox.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-TEST
-
 
 Learning Experience Analysis Toolbox contains tools to analyse learning experience data using the pandas library. This package is developped for EvidenceB leraning experience data.
 
 
 * Free software: MIT license
 * Documentation: https://LrnXPAnaToolbox.readthedocs.io.
+
+
+
+LrnXPAnaToolbox functions
+--------
+
+The most useful functions :
+
+LrnXPAnaToolbox
+│
+├── transform_data
+│   │
+│   └── transform_data.py ────────────────────── transform_data(option, original_json_sequences_name, original_json_trackings_name)
+│
+├── create_marks
+│   │
+│   └── create_marks.py ──────────────────────── create_marks(pickle_file)
+│
+├── cluster_students
+│   │
+│   └── cluster_students.py ──────────────────── similar_students(available_database, new_student_data, clustering_plot=False)
+│
+└── recommander
+    │
+    ├── dropout.py ───────────────────────────── dropout_recommendation(new_student_data, available_database, recommendation_dataset)
+    │
+    ├── final_test_recommendation.py ─────────── recom_algorithm(userinput_df, students_df)
+    │
+    └── recommander.py ───────────────────────── algorithm(student_data, student_marks, students_df, marks_df)
+
+
+* transform_data() take the names of the json files of data collected by the EvidenceB developpers, the objective of this function is to transform the pickle files (with the name passed as parameters) into pandas dataframe table for the data analysts.
+The option is here to specify which file you want to transform :
+option = 3       Transform data and save 2 pandas dataframes : sequences and chatbot
+option = 1       Transform data and save 1 pandas dataframe : sequences
+option = 2       Transform data and save 1 pandas dataframe : chatbot
+
+sequences is usefull if you want to know about what is shown on the chatbot (the messages, the questions...) ; a work trail : in order to do a mistake analysis on the students answers you may want to know the category of the exercise (drop'n drag, quizz, free answer...)
+To do so :
+you have something like this in the sequences file :
+        "type": "answer",
+        "format": "text",
+        "_id": "5ebbb8d5203e2c00179b110e",
+        "locale": "fr_FR",
+        "subject": "french"
+You must isolate the data for which type is "answer" and save, for these data the module id, path id, activity id and exercise id to search in the tracking file or if not in the chatbot architecture file to match the corresponding type.
+
+chatbot (is mainly computed from the trackings file) is usefull to manipulate the data, you can implement new function in order to get new variables.
+
+
+* create_marks() returns a dataframe with 3 columns the student, the question and the mark. This mark used to represent the learning achieved by the student with the exercise. More the mark has a high value, more the question is useful for the learning of the student. One of the tenets of this function is that : making mistakes is useful.
+This function is useful to create the marks dataframe, needed to compute the LrnXPAnaToolbox.recommender.recommander.argorithm() function later. The only parameter for this function is the name of the pickle file of data (you can get one pickle like this one with LrnXPAnaToolbox.transform_data()).
+
+
+* cluster_students.similar_students() fucntion create a dataframe and a predicition cluster value. Given a new student dataset + the dataset of all available data, this function returns a dataframe with the clusters for each student of the available data (using MiniBatchKMeans algorithm from sklearn) and the predicted cluster for the new student.
+The dataset of available data could be obtain from the pickle file get with LrnXPAnaToolbox.transform_data().
+The student dataset too.
+
+
+* recommander main function is algorithm(), this function use cluster_students.similar_students(), recommander.recom_algorithm() and recommander.dropout_recommendation() to recommand questions given a new student dataset and his/her table marks + the available data dataset and the table of marks corresponding.
+
+
+* the main function in final_recommendation() is recom_algorithm() which take the new student data and his/her table of marks. This function returns a dataframe with some best questions to propose to the student.
+
+
+* the main function in dropout() called dropout_recommendation() modify the recommendation dataframe that you can get with...
+As it is the case for the cluster_students function this function takes a new student dataset and the dataset of available data + the recommendation dataframe.
+
+
+
+How to use
+--------
+.
+.
+.
+
+
+
+Example of use (for a data analyst)
+--------
+
+LrnXPAnaToolbox.transform_data.transform_data() will take the json files of the developpers + an option (3 for example, you will get the max of this function). From the chatbot pickle created you can compute marks to get a big table of marks for each students and questions. Then when we collect the data of a new student on the chatbot wae can do the same thing : transform the data and create the marks (this will be really fast comparing to the time spent to compute tha dataframe for all data).
+The objective doing this is to recommand question(s) to the new student for his/her next connection. To do so, given the forth computed dataframes you can recommand question.
+
 
 
 Features
