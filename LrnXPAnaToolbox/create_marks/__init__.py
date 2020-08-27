@@ -1,4 +1,4 @@
-"""Top-level package for UQDKR LrnXPAnaToolbox."""
+"""Create a table of marks given by each student for each question."""
 
 __author__ = """Kayané Elmayan Robach"""
 __email__ = 'kaya.robach@gmail.com'

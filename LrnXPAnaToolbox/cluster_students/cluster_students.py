@@ -240,7 +240,7 @@ def similar_students(available_database, new_student_data, clustering_plot=False
     DFKMEANS = X.copy()
     DFKMEANS['Cluster'] = clustering.labels_
     if str(clustering_plot) == 'True' :
-        print('\nClose the figure to continue.\n')
+        print('\nPlease close the figure if ou want to continue.\n')
         plot_clustering(DFVariables, DFKMEANS, nbr_clusters)
     return DFKMEANS.loc[:,['id_eleve','Cluster']], clustering_model.predict(student_array_features)
 

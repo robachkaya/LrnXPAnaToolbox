@@ -11,9 +11,9 @@ import sys
 def usage(argv):
     if len(argv) == 2:
         if argv[1] == "-h":
-            print("USAGE")
+            print("\nUSAGE")
             print("    python recommender.py student_df student_marks all_students_df all_student_marks")
-            print("DESCRIPTION")
+            print("\nDESCRIPTION")
             print("    student_df           File containing datas of the student you")
             print("                         want to recommend questions")
             print("    student_marks        File containing marks of the student for recommendations")
@@ -73,13 +73,3 @@ def main(argv):
 
 if __name__ == '__main__':
     main(sys.argv)
-
-
-    '''students.columns = ['student_id', 'question_id', 'rating'] # add column 'clusters'
-    list_stud = students.student_id.unique()
-    for i in range(len(list_stud)) :
-        studinput_df = students.loc[students['student_id'] == list_stud[i]]
-        students_df = students[students.student_id != list_stud[i]]
-    ###################################################
-        #recom_algorithm(studinput_df, students_df)
-        '''

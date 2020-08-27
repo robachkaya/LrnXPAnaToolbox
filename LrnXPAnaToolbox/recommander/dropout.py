@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 ## EVIDENCEB, 2020
 ## dropout.py
 ## File description:
@@ -19,9 +17,9 @@ from sklearn.tree import DecisionTreeClassifier
 def usage(argv): # argv = arguments passed to the script = dropout.py -h
     if len(argv) == 2:
         if argv[1] == "-h":
-            print("USAGE")
+            print("\nUSAGE")
             print("    ./dropout.py  new_student_data  available_database  recommendation_dataset")
-            print("DESCRIPTION")
+            print("\nDESCRIPTION")
             print("""    new_student_data       Dataframe with all the data for only one (new) student (created with transform_data.py for example)""")
             print("""    available_database       Dataframe with all the available data (created with transform_data.py for example)""")
             print("""    recommendation_dataset       Dataframe with the N best questions to propose to the new_student""")
@@ -88,8 +86,16 @@ def dropout_prediction(prediction_test, student_array_features):
     Y = prediction_test['dropout']
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.3)
     parametre = [{"max_depth":list(range(2,10))}]
-    try_model = GridSearchCV(DecisionTreeClassifier(),parametre,cv=5,n_jobs=-1)
-    try_model.fit(X_train,Y_train)
+    
+    retry = True
+    while retry = True :
+        try :
+            try_model = GridSearchCV(DecisionTreeClassifier(),parametre,n_jobs=-1)
+            try_model.fit(X_train,Y_train)
+            retry = False
+        except ValueError :
+            retry = True
+
     best_param = try_model.fit(X_train,Y_train).best_params_
     model = DecisionTreeClassifier(max_depth = best_param["max_depth"])
     model.fit(X_train, Y_train)

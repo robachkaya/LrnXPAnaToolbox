@@ -9,7 +9,6 @@ from LrnXPAnaToolbox.lib import *
 def recom_algorithm(userinput_df, students_df) :
     userinput_df = from_list_to_str(userinput_df,'question_id')
     students_df = from_list_to_str(students_df,'question_id')
-
 # Beginning of the collaborative filtering.
 
 # Filtering out students that have answered the same questions as the student X and storing it
@@ -77,10 +76,3 @@ def recom_algorithm(userinput_df, students_df) :
     recom = recommendation_df.loc[questions_df['question_id'].isin(recommendation_df['question_id'])]
     pds.set_option("display.max_rows", None, "display.max_columns", None)
     return recom.head(20)
-
-
-# to avoid pandas error from manipulating lists in dataframe we convert question into string
-#    dfnew = recommendation_dataset[['question_id']].copy(deep=True)
-#    pds.options.mode.chained_assignment = None
-#    recommendation_dataset['question_id'] = dfnew['question_id'].apply( lambda x : list_question_tostr(x) )
-#    recommendation_dataset['question_id'] = dfnew['question_id'].apply( lambda x : str_question_tolist(x) )
