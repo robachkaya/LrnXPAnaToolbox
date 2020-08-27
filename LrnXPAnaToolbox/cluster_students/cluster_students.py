@@ -21,9 +21,9 @@ import sys
 def usage(argv): # argv = arguments passed to the script = cluster_students.py -h
     if len(argv) == 2:
         if argv[1] == "-h":
-            print("USAGE")
+            print("\nUSAGE")
             print("    ./cluster_students.py  available_database  clustering_plot")
-            print("DESCRIPTION")
+            print("\nDESCRIPTION")
             print("""    available_database       dataframe with all the data (created with transform_data.py for example)""")
             print("""    new_student_data       dataframe with all the data for only one (new) student (created with transform_data.py for example)""")
             print("""    clustering_plot       default value set to False, if True the function plot the 3D PCA graph of the clustering""")

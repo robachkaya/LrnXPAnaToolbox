@@ -17,11 +17,11 @@ from pandas import Panel
 def usage(argv): # argv = arguments passed to the script = create_marks.py -h
     if len(argv) == 2:
         if argv[1] == "-h":
-            print("USAGE")
+            print("\nUSAGE")
             print("    ./create_marks.py  pickle_file")
-            print("DESCRIPTION")
+            print("\nDESCRIPTION")
             print("""    pickle_file       Name of the pickle file to use as database, if the file is called chatbot_data.pk1, please enter chatbot_data as pickle_file.""")
-            print("""\ncreate_marks.py must be into a directory with a directory named data with the pickle file :\nchatbot_data.pk1""")
+            print("""\ncreate_marks.py must be into a directory with a directory named \'data\' with the pickle file :\nchatbot_data.pk1""")
             return 1
     return 0
 
@@ -131,6 +131,32 @@ def complete_proba_matrix(proba, failure=False):
             participants.append(dict(row=couple[0],col=couple[1],value=v[0][1,0] + v[0][1,1]))
     return pds.DataFrame(matrix), pds.DataFrame(participants)
 
+def str_question_tolist(question):
+    to_return = list( int(e) for e in question )
+    if len(to_return)==5 :
+        new_return = to_return[:3]
+        new_return.append(int( str(to_return[3])+str(to_return[4]) ))
+        return new_return
+    else : 
+        return to_return
+    
+def list_question_tostr(question):
+    return ''.join(str(e) for e in question)
+
+def from_list_to_str(df):
+    # to avoid pandas error from manipulating lists in dataframe we convert question into string
+    dfnew = df[['id_mpae']].copy(deep=True)
+    pds.options.mode.chained_assignment = None
+    df['id_mpae'] = dfnew['id_mpae'].apply( lambda x : list_question_tostr(x) )
+    return df
+
+def from_str_to_list(df):
+    # to get a better visualisation of questions at the end of the algorithm
+    dfnew = df[['id_mpae']].copy(deep=True)
+    pds.options.mode.chained_assignment = None
+    df['id_mpae'] = dfnew['id_mpae'].apply( lambda x : str_question_tolist(x) )
+    return df
+
 def create_marks(pickle_file) :
 
     """ create_marks returns a dataframe with 3 columns the student, the question and the mark. This mark used to represent 
@@ -183,9 +209,9 @@ def create_marks(pickle_file) :
     print("                        / `.   .' \\")
     database = pds.read_pickle(os.path.join(".","data", f"{pickle_file}.pk1"))
     DF = database[database['etape']!=3] 
-    dfnew = DF[['id_mpae']].copy(deep=True)
-    pds.options.mode.chained_assignment = None
-    DF['id_mpae'] = dfnew['id_mpae'].apply( lambda x : ''.join(str(e) for e in x) )
+
+    from_list_to_str(DF)
+
     print("                .---.  <    > <    >  .---.")
     dic_success = conditionnal_proba(DF, module=-1, path=-1, test=1, failure=False, get_proba_specific_path=False)
     print("                |    \  \ - ~ ~ - /  /    |")
@@ -273,7 +299,8 @@ def create_marks(pickle_file) :
                 elif question_second_test.shape[0] != 0 :
                     if question_second_test['correct'].iloc[0] == False :
                         mark += 1 
-        return id_eleve, list( int(e) for e in id_mpae ), int(mark)
+
+        return id_eleve, str_question_tolist(id_mpae), int(mark)
     tqdm.pandas()
     resultat = groupby_student_question.progress_apply(give_mark)
     return pds.DataFrame(list(resultat), columns = ['student', 'question', 'mark'])

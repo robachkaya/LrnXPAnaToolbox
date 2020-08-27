@@ -25,14 +25,14 @@ from math import *
 def usage(argv): # argv = arguments passed to the script = transform_data.py -h
     if len(argv) == 2:
         if argv[1] == "-h":
-            print("USAGE")
+            print("\nUSAGE")
             print("    ./transform_data.py  option  original_json_sequences_name  original_json_trackings_name")
-            print("DESCRIPTION")
+            print("\nDESCRIPTION")
             print("""    option = 3       Transform data and save 2 pandas dataframes : sequences and chatbot""")
             print("""    option = 1       Transform data and save 1 pandas dataframe : sequences""")
             print("""    option = 2       Transform data and save 1 pandas dataframe : chatbot""")
             print("""    original_json_sequences_name   original_json_trackings_name   are the names of both json files.""")
-            print("""\ntransform_data.py must be into a directory with a directory named data with the files : \noriginal_json_sequences_name.txt and original_json_sequences_name.json\noriginal_json_trackings_name.txt and original_json_trackings_name.json""")
+            print("""\ntransform_data.py must be into a directory with a directory named \'data\' with the files : \noriginal_json_sequences_name.txt and original_json_sequences_name.json\noriginal_json_trackings_name.txt and original_json_trackings_name.json""")
             return 1
     return 0
 
