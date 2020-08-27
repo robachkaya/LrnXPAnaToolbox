@@ -15,14 +15,13 @@ from sklearn import metrics
 from sklearn import preprocessing
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-import types
 import sys
 
 def usage(argv): # argv = arguments passed to the script = cluster_students.py -h
     if len(argv) == 2:
         if argv[1] == "-h":
             print("\nUSAGE")
-            print("    ./cluster_students.py  available_database  clustering_plot")
+            print("    ./cluster_students.py  available_database  new_student_data  clustering_plot")
             print("\nDESCRIPTION")
             print("""    available_database       dataframe with all the data (created with transform_data.py for example)""")
             print("""    new_student_data       dataframe with all the data for only one (new) student (created with transform_data.py for example)""")
@@ -35,8 +34,8 @@ def check_error(argv): # argv = arguments passed to the script = cluster_student
         print("Wrong number of arguments, try \"-h\" for more informations")
         return 1
     if len(argv) == 4 :
-        if argv[3].isinstance(types.BooleanType) != True :
-            print("Arguments have to be numerical characters (1, 2 or 3).")
+        if argv[3] not in ['True','False'] :
+            print("Argument have to be True if you want to see the graphic representation of the clustering or False if not.")
             return 1
         if (argv[2].isidentifier() != True)|(argv[1].isidentifier() != True) :
             print("available_database and new_student_data arguments have to be the name of pandas dataframe so : alphanumeric letters (a-z) and/or (0-9) and/or underscores (_).")
@@ -231,14 +230,16 @@ def similar_students(available_database, new_student_data, clustering_plot=False
         plot_clustering(DFVariables, DFKMEANS, nbr_clusters)
     return DFKMEANS.loc[:,['id_eleve','Cluster']], clustering_model.predict(student_array_features)
 
-
 def main(argv):
     if usage(argv) != 0:
         exit(0)
     if check_error(argv) != 0:
         exit(84)
-    available_database = argv[1]
-    new_student_data = argv[2]
+    #available_database = argv[1]
+    #new_student_data = argv[2]
+    #TO TEST 
+    available_database = pds.read_pickle((os.path.join(".","data",argv[1])))
+    new_student_data = pds.read_pickle((os.path.join(".","data",argv[2])))
     if len(argv)==4:
         clustering_plot = argv[3]
         similar_students(available_database, new_student_data, clustering_plot)
