@@ -28,26 +28,20 @@ LrnXPAnaToolbox functions
 The most useful functions :
 
 LrnXPAnaToolbox
-│
-├── transform_data
-│   │
-│   └── transform_data.py ────────────────────── transform_data(option, original_json_sequences_name, original_json_trackings_name)
-│
-├── create_marks
-│   │
-│   └── create_marks.py ──────────────────────── create_marks(pickle_file)
-│
-├── cluster_students
-│   │
-│   └── cluster_students.py ──────────────────── similar_students(available_database, new_student_data, clustering_plot=False)
-│
-└── recommender
-    │
-    ├── dropout.py ───────────────────────────── dropout_recommendation(new_student_data, available_database, recommendation_dataset)
-    │
-    ├── final_test_recommendation.py ─────────── recom_algorithm(userinput_df, students_df)
-    │
-    └── recommender.py ───────────────────────── algorithm(student_data, student_marks, students_df, marks_df)
+
+	transform_data
+		transform_data.py	transform_data(option, original_json_sequences_name, original_json_trackings_name)
+	
+	create_marks
+		create_marks.py	create_marks(pickle_file)
+
+	cluster_students
+		cluster_students.py	similar_students(available_database, new_student_data, clustering_plot=False)
+
+	recommender
+		dropout.py	dropout_recommendation(new_student_data, available_database, recommendation_dataset)
+		final_test_recommendation.py	recom_algorithm(userinput_df, students_df)
+		recommender.py	algorithm(student_data, student_marks, students_df, marks_df)
 
 
 * transform_data() take the names of the json files of data collected by the EvidenceB developpers, the objective of this function is to transform the pickle files (with the name passed as parameters) into pandas dataframe table for the data analysts.
