@@ -53,6 +53,7 @@ def check_error(argv): # argv = arguments passed to the script = transform_data.
     return 0
 
 def to_workable_json(namefile):
+    """Modify the json file (at the text format) to get a workable json file (at the json format) under the name transformed...json."""
     f = io.open((os.path.join(".","data", "{0}.txt".format(namefile))), 'r', encoding='utf-8')
     content = f.read()
     first_elements, last_elements = content[0:2],content[-3:-1]
@@ -85,6 +86,7 @@ def to_workable_json(namefile):
         print("json transformed")
 
 def json_to_csv_seq(csvfile, jsonfile):
+    """Take the json modified from sequences file from the previous function to writw a csv file."""
     with io.open((os.path.join(".","data", "{0}.csv".format(csvfile))), 'w', encoding='utf_8') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         with io.open(os.path.join(".","data", "{0}.json".format(jsonfile)), encoding='utf_8') as f:
@@ -95,47 +97,62 @@ def json_to_csv_seq(csvfile, jsonfile):
                     try :
                         module = multi_rows["module"]
                     except KeyError:
-                        module = 'no'
+                        module = np.nan
                     try:
                         path = multi_rows["path"]
                     except KeyError:
-                        path = 'no'
+                        path = np.nan
                     try:
                         activity = multi_rows["activity"]
                     except KeyError:
-                        activity = 'no'
+                        activity = np.nan
                     try :
                         token = multi_rows["token"]
                     except KeyError:
-                        token = 'no'
+                        token = np.nan
                     for sequence in json.loads(multi_rows["sequence"]):
                         try:
-                            moduleseq = sequence['module']
+                            real_module = sequence['module']
                         except KeyError:
-                            moduleseq = 'no'
+                            real_module = np.nan
                         try:
-                            pathseq = sequence['path']
+                            real_path = sequence['path']
                         except KeyError:
-                            pathseq = 'no'
+                            real_path = np.nan
                         try:
-                            activityseq = sequence['activity']
+                            real_activity = sequence['activity']
                         except KeyError:
-                            activityseq = 'no'
+                            real_activity = np.nan
                         try:
-                            exerciceseq = sequence['exercice']
+                            real_exercice = sequence['exercice']
                         except KeyError:
-                            exerciceseq = 'no'
+                            real_exercice = np.nan
                         try:
                             difficultyseq = sequence['difficulty']
                         except KeyError:
-                            difficultyseq = 'no'
-                        spamwriter.writerow([moduleseq, pathseq, activityseq, exerciceseq, difficultyseq, module, path, activity, token])
+                            difficultyseq = np.nan
+                        try:
+                            type_answer = sequence["type"]
+                        except KeyError:
+                            type_answer = np.nan
+                        try:
+                            reponse_eleve = sequence["content_id"]
+                        except KeyError:
+                            reponse_eleve = np.nan
+                        try:
+                            reponse_correcte = sequence["correct_answer"]
+                        except KeyError:
+                            reponse_correcte = np.nan
+
+                        spamwriter.writerow([real_module, real_path, real_activity, real_exercice, difficultyseq, type_answer, module, path, activity, token, reponse_eleve, reponse_correcte])
 
 def csv_to_dataframe(csvfile,columns_names):
+    """Transform the csv file from the previous functio into a dataframe."""
     return pds.read_csv((os.path.join(".","data", "{0}.csv".format(csvfile))),names=columns_names)
 
 def dict_diagnostique(dataframe_chatbot):
-    chatbot_data_difficulty = dataframe_chatbot[dataframe_chatbot['pathseq']==0]
+    """Create a dictionnary with : for each question from the diagnostic test (id_mpae) in key, the path corresponding in value."""
+    chatbot_data_difficulty = dataframe_chatbot[dataframe_chatbot['real_path']==0]
     chatbot_data_difficulty = pds.DataFrame.set_index(chatbot_data_difficulty,(np.arange(len(chatbot_data_difficulty))))
     diagnostique = {}
 
@@ -160,13 +177,14 @@ def dict_diagnostique(dataframe_chatbot):
     for key in diagnostique:
         if not diagnostique[key]:
             cpt+=1
-            print(f"aucun des dictionnaires de difficulté n'est lisible avec json.loads pour l'exercice {key}, il faut coder une solution pour transformer le string en un dictionnaire exploitable")
+            print(f"None of the difficulty dictionnary is readable with json.loads for the exercice {key}, you must code a solution to transform the string into a workable dictionnary.")
     if cpt==0:
         for key in diagnostique:
             diagnostique[key]=diagnostique[key][0]
     return diagnostique
 
 def json_to_csv_track(csvfile, jsonfile):
+    """Take the json modified from trackings file from the previous function to writw a csv file."""
     with io.open((os.path.join(".","data", "{0}.csv".format(csvfile))), 'w') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         with io.open((os.path.join(".","data", "{0}.json".format(jsonfile)))) as f:
@@ -180,11 +198,31 @@ def json_to_csv_track(csvfile, jsonfile):
                     token = multi_rows["token"]
                     for tracking in json.loads(multi_rows["tracking"]):
                         try:
-                            spamwriter.writerow([token, module, path, activity, tracking["tms"], tracking["exerciceId"], tracking["isCorrect"]])
+                            tms = tracking["tms"]
                         except KeyError:
-                            continue
+                            tms = np.nan
+                        try:
+                            exerciceId = tracking["exerciceId"]
+                        except KeyError:
+                            exerciceId = np.nan
+                        try:
+                            isCorrect = tracking["isCorrect"]
+                        except KeyError:
+                            isCorrect = np.nan
+                        try:
+                            question_type = tracking["type"]
+                        except KeyError:
+                            question_type = np.nan
+
+                        spamwriter.writerow([token, module, path, activity, tms, exerciceId, isCorrect, question_type])
+                        
 
 def remplir_etape():
+    """L1, L2, L3 are the list of the questions from each of the different steps : 1 for the diagnostic test, 2 for the exercice in the path assigned, 3 for the final test.
+       1st step : path and activity = 0
+       3rd step : the last activity of each path in each module + 1
+       2nd step : other question"""
+    # WARNING : must be update for each version of the chatbot
     d={}
     L3=set([(1,1,7),(1,2,6),(1,3,6),(2,1,6),(2,2,5),(2,3,5),(3,1,6),(3,2,4),(3,3,6),(4,1,6),(4,2,4),(4,3,6),(5,1,6),(5,2,6),(5,3,5),(6,1,5),(6,2,5),(6,3,4),(7,1,6),(7,2,7),(7,3,6),(8,1,6),(8,2,4),(8,3,5),(9,1,4),(9,2,5),(9,3,5)])
     for triple in L3:
@@ -210,9 +248,9 @@ def id_mpae_3_step(row):
     else :
         return [int(row.module),int(row.path),int(row.activity),int(row.exerciceId)]
 
-
 def set_essai(data):
-
+    """For each student and question (id_mpae) we have to number the test done (according to the date).
+       For each student and question we isolate a dataframe ; then we sort it by ascending date (tms) and we attribute the index as the test number."""
     # we have to transform the id_mpae column in string :
     dfnew = data[['id_mpae']].copy(deep=True)
     pds.options.mode.chained_assignment = None
@@ -235,6 +273,8 @@ def set_essai(data):
     return result
 
 def duree(data):
+    """For each student, we look at the date of each line of exercice and we calculate the duration according to the next date.
+       The last duration cannot be calculated because there is no next date."""
     frames = []
     for eleve in data['token'].unique():
         data_eleve = data[data['token']==eleve]
@@ -262,6 +302,10 @@ def plus_proche(idx,array):
         return result
 
 def get_index_connection(data):
+    """To get the index connection, we look at the big duration (indicating that the next exercise has been done later : at a next connection).
+       We save the index of these lines in the dataframe and we look at other questions.
+       If the question is done before a big duration, the question is done during the connection ending with this big duration.
+       If the question is done later, we are in a new connection."""
     data = data.sort_values('tms', axis=0, ascending=True)
     data = pds.DataFrame.set_index(data,np.arange(data.shape[0]))
     eleve_index_grosses_durees = {}
@@ -276,6 +320,7 @@ def get_index_connection(data):
     return index_connection
 
 def get_parcours_diagnostique(dico):
+    """We attribute the diagnotic path of any question of the 1st step looking at the dictionnary of difficulty."""
     if type(dico)==str:
         dico = json.loads(dico)
         for key in dico:
@@ -286,6 +331,7 @@ def get_parcours_diagnostique(dico):
         return np.nan
 
 def tranche_horaire(data):
+    """For each student and each connection we look at the major hour in each the connection took place."""
     d={}
     data_eleve_connection = data.groupby(['token','num_connection'])
     for serie in data_eleve_connection :
@@ -308,17 +354,17 @@ def transform_data(option,original_json_sequences_name,original_json_trackings_n
         to_workable_json(original_json_sequences_name)
         json_to_csv_seq('jsonfile_to_csv_sequences2',f'transformed_{original_json_sequences_name}')
         print("                                              ,","                                             ,o","                                             :o",sep="\n")
-        dumpseq_1 = csv_to_dataframe('jsonfile_to_csv_sequences2',['moduleseq','pathseq','activityseq','exerciceseq','difficultyseq','module','path','activity','id_eleve','reponse','reponse_correcte','correct'])
+        dumpseq_1 = csv_to_dataframe('jsonfile_to_csv_sequences2',['real_module','real_path','real_activity','real_exercice','difficultyseq', 'type_answer', 'module','path','activity','id_eleve', 'reponse_eleve', 'reponse_correcte'])
         print("                    _....._                  `:o","                  .'       ``-.                \o","                 /  _      _   \                \o",sep="\n")
-        dumpseq_1[['moduleseq','pathseq','activityseq','exerciceseq']] = dumpseq_1[['moduleseq','pathseq','activityseq','exerciceseq']].apply(pds.to_numeric, errors='coerce')
+        dumpseq_1[['real_module','real_path','real_activity','real_exercice']] = dumpseq_1[['real_module','real_path','real_activity','real_exercice']].apply(pds.to_numeric, errors='coerce')
         print("                :  /*\    /*\  :                 ;o","                |  \_/    \_/  :                  ;o","                (       U      /                  ;o",sep="\n")
-        dumpseq_1[['moduleseq','pathseq','activityseq','exerciceseq']] = dumpseq_1[['moduleseq','pathseq','activityseq','exerciceseq']].astype('Int16')
+        dumpseq_1[['real_module','real_path','real_activity','real_exercice']] = dumpseq_1[['real_module','real_path','real_activity','real_exercice']].astype('Int16')
         print("                 \  (\_____/) /                  /o","                  \   UQDKR  (                  /o","                   \         (                ,o:",sep="\n")
         dumpseq_1 = dumpseq_1.fillna(-1)
         print("                   )          \,           .o;o'           ,o'o'o.","                 ./          /\o;o,,,,,;o;o;''         _,-o,-'''-o:o.","  .             ./o./)        \    'o'o'o''         _,-'o,o'         o",sep="\n")
-        dumpseq_1.loc[:,'id_mpae'] = dumpseq_1.apply(lambda row: [int(row.module),int(row.path),int(row.activity),int(row.exerciceseq)], axis=1)
+        dumpseq_1.loc[:,'id_mpae'] = dumpseq_1.apply(lambda row: [int(row.module),int(row.path),int(row.activity),int(row.real_exercice)], axis=1)
         print("  o           ./o./ /       .o \.              __,-o o,o'","  \o.       ,/o /  /o/)     | o o'-..____,,-o'o o_o-'","  `o:o...-o,o-' ,o,/ |     \   'o.o_o_o_o,o--''",sep="\n")
-        dumpseq_1.loc[:,'id_final_mpae'] = dumpseq_1.apply(lambda row: [int(row.moduleseq),int(row.pathseq),int(row.activityseq),int(row.exerciceseq)], axis=1)
+        dumpseq_1.loc[:,'id_final_mpae'] = dumpseq_1.apply(lambda row: [int(row.real_module),int(row.real_path),int(row.real_activity),int(row.real_exercice)], axis=1)
         print("  .,  ``o-o'  ,.oo/   'o /\.o`.","  `o`o-....o'o,-'   /o /   \o \.                       ,o..         o","    ``o-o.o--      /o /      \o.o--..          ,,,o-o'o.--o:o:o,,..:o",sep="\n")
         diagnostique = dict_diagnostique(dumpseq_1)
         print("                  (oo(          `--o.o`o---o'o'o,o,-'''        o'o'o","                   \ o\              ``-o-o''''","    ,-o;o           \o \\","    ,-o;o           \o \\",sep="\n")
@@ -327,23 +373,19 @@ def transform_data(option,original_json_sequences_name,original_json_trackings_n
         dfnew = dumpseq_1[['id_mpae']].copy(deep=True)
         pds.options.mode.chained_assignment = None
         dumpseq_1['id_mpae'] = dfnew['id_mpae'].apply( lambda x : ''.join(str(e) for e in x) )
-
         dumpseq_1['diagnostique'] = dumpseq_1['id_mpae'].map(diagnostique)
-
         dumpseq_1['id_mpae'] = dfnew['id_mpae'].apply( lambda x : list( int(e) for e in x ) )
 
         print("   /o/               )o )","  (o(               /o /","   \o\.       ...-o'o /",sep="\n")
         dumpseq_1.to_pickle((os.path.join(".","data", f"sequences_data_{today}.pk1")))
         print("    \ o`o`-o'o o,o,--'","       ```o--'''",sep="\n")
         print("\nsequences dataframe built\n")
-
         print("building trackings data\n")
         to_workable_json(original_json_trackings_name)
         json_to_csv_track('jsonfile_to_csv_trackings2',f'transformed_{original_json_trackings_name}')
         print("                                                       ______","                                                     /    /_-._",sep="\n")
         print("                                                   / /_ ~~o\  :Y","                                                   / : \~x.  ` ')",sep="\n")
-        dumptrack_2 = csv_to_dataframe('jsonfile_to_csv_trackings2',['token','module','path','activity','tms','exerciceId','isCorrect'])
-
+        dumptrack_2 = csv_to_dataframe('jsonfile_to_csv_trackings2',['token','module','path','activity','tms','exerciceId','isCorrect','question_type'])
         dico_etapes = remplir_etape()
         print("                                                  /  |  Y< ~-.__j")
         dumptrack_2['tms'] = dumptrack_2['tms']/1000
@@ -358,15 +400,15 @@ def transform_data(option,original_json_sequences_name,original_json_trackings_n
         dumptrack_2['date'] = dumptrack_2.apply(lambda row: (datetime.datetime.fromtimestamp(row.tms).year,datetime.datetime.fromtimestamp(row.tms).month,datetime.datetime.fromtimestamp(row.tms).day), axis=1)
         print("        '--.__            `'----/       '-.      __ :/")
         chatbot = set_essai(dumptrack_2)
-
         print("              '-.___           :           \   .'  )/")
+        
         # we have to transform the id_mpae column in string :
-
         dfnew = chatbot[['id_mpae']].copy(deep=True)
         pds.options.mode.chained_assignment = None
         chatbot['id_mpae'] = dfnew['id_mpae'].apply( lambda x : ''.join(str(e) for e in x) )
         chatbot['diagnostique'] = chatbot['id_mpae'].map(diagnostique)
         chatbot['id_mpae'] = dfnew['id_mpae'].apply( lambda x : list( int(e) for e in x ) )
+
         chatbot.loc[chatbot['etape']!=1,'diagnostique'] = np.nan
         print("                    '---._           _.-'   ] /  _/")
         chatbot_new = duree(chatbot)
@@ -393,15 +435,15 @@ def transform_data(option,original_json_sequences_name,original_json_trackings_n
         horaire = tranche_horaire(chatbot_new)
         print("                      /,/")
         chatbot_new['horaire'] = chatbot_new.apply( lambda row: horaire[(row.token,row.num_connection)],axis=1 )
-        chatbot_new.columns = ['id_eleve', 'module', 'path', 'activity', 'tps_posix', 'exercice', 'correct',
+        chatbot_new.columns = ['id_eleve', 'module', 'path', 'activity', 'tps_posix', 'exercice', 'correct', 'question_type',
        'jour', 'etape', 'id_mpa', 'id_mpae', 'date', 'essai', 'diagnostique',
        'tps+1', 'duree', 'num_connection', 'reconnections',
-       'nbr_questions_faites', 'parcours_diagnostique','horaire']
+       'parcours_diagnostique', 'nbr_questions_faites', 'horaire']
         print("                      |/`)")
-        chatbot_final = chatbot_new.loc[:,['id_eleve', 'module', 'path', 'activity', 'tps_posix', 'exercice','correct',
+        chatbot_final = chatbot_new.loc[:,['id_eleve', 'module', 'path', 'activity', 'tps_posix', 'exercice','correct', 'question_type',
        'jour', 'etape', 'id_mpa', 'id_mpae', 'date', 'essai',
        'tps+1', 'duree', 'num_connection', 'reconnections',
-       'nbr_questions_faites', 'parcours_diagnostique', 'horaire']]
+       'parcours_diagnostique', 'nbr_questions_faites', 'horaire']]
         print("                      'c=,")
         chatbot_final.to_pickle((os.path.join(".","data", f"chatbot_data_{today}.pk1")))
         print("\nchatbot dataframe built from trackings and sequences data")
@@ -412,26 +454,28 @@ def transform_data(option,original_json_sequences_name,original_json_trackings_n
         to_workable_json(original_json_sequences_name)
         json_to_csv_seq('jsonfile_to_csv_sequences2',f'transformed_{original_json_sequences_name}')
         print("                                              ,","                                             ,o","                                             :o",sep="\n")
-        dumpseq_1 = csv_to_dataframe('jsonfile_to_csv_sequences2',['moduleseq','pathseq','activityseq','exerciceseq','difficultyseq','module','path','activity','id_eleve','reponse','reponse_correcte','correct'])
+        dumpseq_1 = csv_to_dataframe('jsonfile_to_csv_sequences2',['real_module','real_path','real_activity','real_exercice','difficultyseq', 'type_answer','module','path','activity','id_eleve', 'reponse_eleve', 'reponse_correcte'])
         print("                    _....._                  `:o","                  .'       ``-.                \o","                 /  _      _   \                \o",sep="\n")
-        dumpseq_1[['moduleseq','pathseq','activityseq','exerciceseq']] = dumpseq_1[['moduleseq','pathseq','activityseq','exerciceseq']].apply(pds.to_numeric, errors='coerce')
+        dumpseq_1[['real_module','real_path','real_activity','real_exercice']] = dumpseq_1[['real_module','real_path','real_activity','real_exercice']].apply(pds.to_numeric, errors='coerce')
         print("                :  /*\    /*\  :                 ;o","                |  \_/    \_/  :                  ;o","                (       U      /                  ;o",sep="\n")
-        dumpseq_1[['moduleseq','pathseq','activityseq','exerciceseq']] = dumpseq_1[['moduleseq','pathseq','activityseq','exerciceseq']].astype('Int16')
+        dumpseq_1[['real_module','real_path','real_activity','real_exercice']] = dumpseq_1[['real_module','real_path','real_activity','real_exercice']].astype('Int16')
         print("                 \  (\_____/) /                  /o","                  \   UQDKR  (                  /o","                   \         (                ,o:",sep="\n")
         dumpseq_1 = dumpseq_1.fillna(-1)
         print("                   )          \,           .o;o'           ,o'o'o.","                 ./          /\o;o,,,,,;o;o;''         _,-o,-'''-o:o.","  .             ./o./)        \    'o'o'o''         _,-'o,o'         o",sep="\n")
-        dumpseq_1.loc[:,'id_mpae'] = dumpseq_1.apply(lambda row: [int(row.module),int(row.path),int(row.activity),int(row.exerciceseq)], axis=1)
+        dumpseq_1.loc[:,'id_mpae'] = dumpseq_1.apply(lambda row: [int(row.module),int(row.path),int(row.activity),int(row.real_exercice)], axis=1)
         print("  o           ./o./ /       .o \.              __,-o o,o'","  \o.       ,/o /  /o/)     | o o'-..____,,-o'o o_o-'","  `o:o...-o,o-' ,o,/ |     \   'o.o_o_o_o,o--''",sep="\n")
-        dumpseq_1.loc[:,'id_final_mpae'] = dumpseq_1.apply(lambda row: [int(row.moduleseq),int(row.pathseq),int(row.activityseq),int(row.exerciceseq)], axis=1)
+        dumpseq_1.loc[:,'id_final_mpae'] = dumpseq_1.apply(lambda row: [int(row.real_module),int(row.real_path),int(row.real_activity),int(row.real_exercice)], axis=1)
         print("  .,  ``o-o'  ,.oo/   'o /\.o`.","  `o`o-....o'o,-'   /o /   \o \.                       ,o..         o","    ``o-o.o--      /o /      \o.o--..          ,,,o-o'o.--o:o:o,,..:o",sep="\n")
         diagnostique = dict_diagnostique(dumpseq_1)
         print("                  (oo(          `--o.o`o---o'o'o,o,-'''        o'o'o","                   \ o\              ``-o-o''''","    ,-o;o           \o \\","    ,-o;o           \o \\",sep="\n")
+        
         # we have to transform the id_mpae column in string :
         dfnew = dumpseq_1[['id_mpae']].copy(deep=True)
         pds.options.mode.chained_assignment = None
         dumpseq_1['id_mpae'] = dfnew['id_mpae'].apply( lambda x : ''.join(str(e) for e in x) )
         dumpseq_1['diagnostique'] = dumpseq_1['id_mpae'].map(diagnostique)
         dumpseq_1['id_mpae'] = dfnew['id_mpae'].apply( lambda x : list( int(e) for e in x ) )
+
         print("   /o/               )o )","  (o(               /o /","   \o\.       ...-o'o /",sep="\n")
         dumpseq_1.to_pickle((os.path.join(".","data", f"sequences_data_{today}.pk1")))
         print("    \ o`o`-o'o o,o,--'","       ```o--'''",sep="\n")
@@ -443,35 +487,36 @@ def transform_data(option,original_json_sequences_name,original_json_trackings_n
         to_workable_json(original_json_sequences_name)
         json_to_csv_seq('jsonfile_to_csv_sequences2',f'transformed_{original_json_sequences_name}')
         print("                                              ,","                                             ,o","                                             :o",sep="\n")
-        dumpseq_1 = csv_to_dataframe('jsonfile_to_csv_sequences2',['moduleseq','pathseq','activityseq','exerciceseq','difficultyseq','module','path','activity','id_eleve','reponse','reponse_correcte','correct'])
+        dumpseq_1 = csv_to_dataframe('jsonfile_to_csv_sequences2',['real_module','real_path','real_activity','real_exercice','difficultyseq', 'type_answer', 'module','path','activity','id_eleve', 'reponse_eleve', 'reponse_correcte'])
         print("                    _....._                  `:o","                  .'       ``-.                \o","                 /  _      _   \                \o",sep="\n")
-        dumpseq_1[['moduleseq','pathseq','activityseq','exerciceseq']] = dumpseq_1[['moduleseq','pathseq','activityseq','exerciceseq']].apply(pds.to_numeric, errors='coerce')
+        dumpseq_1[['real_module','real_path','real_activity','real_exercice']] = dumpseq_1[['real_module','real_path','real_activity','real_exercice']].apply(pds.to_numeric, errors='coerce')
         print("                :  /*\    /*\  :                 ;o","                |  \_/    \_/  :                  ;o","                (       U      /                  ;o",sep="\n")
-        dumpseq_1[['moduleseq','pathseq','activityseq','exerciceseq']] = dumpseq_1[['moduleseq','pathseq','activityseq','exerciceseq']].astype('Int16')
+        dumpseq_1[['real_module','real_path','real_activity','real_exercice']] = dumpseq_1[['real_module','real_path','real_activity','real_exercice']].astype('Int16')
         print("                 \  (\_____/) /                  /o","                  \   UQDKR  (                  /o","                   \         (                ,o:",sep="\n")
         dumpseq_1 = dumpseq_1.fillna(-1)
         print("                   )          \,           .o;o'           ,o'o'o.","                 ./          /\o;o,,,,,;o;o;''         _,-o,-'''-o:o.","  .             ./o./)        \    'o'o'o''         _,-'o,o'         o",sep="\n")
-        dumpseq_1.loc[:,'id_mpae'] = dumpseq_1.apply(lambda row: [int(row.module),int(row.path),int(row.activity),int(row.exerciceseq)], axis=1)
+        dumpseq_1.loc[:,'id_mpae'] = dumpseq_1.apply(lambda row: [int(row.module),int(row.path),int(row.activity),int(row.real_exercice)], axis=1)
         print("  o           ./o./ /       .o \.              __,-o o,o'","  \o.       ,/o /  /o/)     | o o'-..____,,-o'o o_o-'","  `o:o...-o,o-' ,o,/ |     \   'o.o_o_o_o,o--''",sep="\n")
-        dumpseq_1.loc[:,'id_final_mpae'] = dumpseq_1.apply(lambda row: [int(row.moduleseq),int(row.pathseq),int(row.activityseq),int(row.exerciceseq)], axis=1)
+        dumpseq_1.loc[:,'id_final_mpae'] = dumpseq_1.apply(lambda row: [int(row.real_module),int(row.real_path),int(row.real_activity),int(row.real_exercice)], axis=1)
         print("  .,  ``o-o'  ,.oo/   'o /\.o`.","  `o`o-....o'o,-'   /o /   \o \.                       ,o..         o","    ``o-o.o--      /o /      \o.o--..          ,,,o-o'o.--o:o:o,,..:o",sep="\n")
         diagnostique = dict_diagnostique(dumpseq_1)
         print("                  (oo(          `--o.o`o---o'o'o,o,-'''        o'o'o","                   \ o\              ``-o-o''''","    ,-o;o           \o \\","    ,-o;o           \o \\",sep="\n")
+        
         # we have to transform the id_mpae column in string :
         dfnew = dumpseq_1[['id_mpae']].copy(deep=True)
         pds.options.mode.chained_assignment = None
         dumpseq_1['id_mpae'] = dfnew['id_mpae'].apply( lambda x : ''.join(str(e) for e in x) )
         dumpseq_1['diagnostique'] = dumpseq_1['id_mpae'].map(diagnostique)
         dumpseq_1['id_mpae'] = dfnew['id_mpae'].apply( lambda x : list( int(e) for e in x ) )
+
         print("   /o/               )o )","  (o(               /o /","   \o\.       ...-o'o /",sep="\n")
         print("    \ o`o`-o'o o,o,--'","       ```o--'''",sep="\n")
         print("\nbuilding trackings data\n")
-
         to_workable_json(original_json_trackings_name)
         json_to_csv_track('jsonfile_to_csv_trackings2',f'transformed_{original_json_trackings_name}')
         print("                                                       ______","                                                     /    /_-._",sep="\n")
         print("                                                   / /_ ~~o\  :Y","                                                   / : \~x.  ` ')",sep="\n")
-        dumptrack_2 = csv_to_dataframe('jsonfile_to_csv_trackings2',['token','module','path','activity','tms','exerciceId','isCorrect'])
+        dumptrack_2 = csv_to_dataframe('jsonfile_to_csv_trackings2',['token','module','path','activity','tms','exerciceId','isCorrect','question_type'])
         dico_etapes = remplir_etape()
         print("                                                  /  |  Y< ~-.__j")
         dumptrack_2['tms'] = dumptrack_2['tms']/1000
@@ -487,12 +532,14 @@ def transform_data(option,original_json_sequences_name,original_json_trackings_n
         print("        '--.__            `'----/       '-.      __ :/")
         chatbot = set_essai(dumptrack_2)
         print("              '-.___           :           \   .'  )/")
+        
         # we have to transform the id_mpae column in string :
         dfnew = chatbot[['id_mpae']].copy(deep=True)
         pds.options.mode.chained_assignment = None
         chatbot['id_mpae'] = dfnew['id_mpae'].apply( lambda x : ''.join(str(e) for e in x) )
         chatbot['diagnostique'] = chatbot['id_mpae'].map(diagnostique)
         chatbot['id_mpae'] = dfnew['id_mpae'].apply( lambda x : list( int(e) for e in x ) )
+
         chatbot.loc[chatbot['etape']!=1,'diagnostique'] = np.nan
         print("                    '---._           _.-'   ] /  _/")
         chatbot_new = duree(chatbot)
@@ -519,19 +566,23 @@ def transform_data(option,original_json_sequences_name,original_json_trackings_n
         horaire = tranche_horaire(chatbot_new)
         print("                      /,/")
         chatbot_new['horaire'] = chatbot_new.apply( lambda row: horaire[(row.token,row.num_connection)],axis=1 )
-        chatbot_new.columns = ['id_eleve', 'module', 'path', 'activity', 'tps_posix', 'exercice', 'correct',
+        # WARNING : Pay attention of the current order of columns here befor changing the names :
+        # print(chatbot_new.columns)
+        chatbot_new.columns = ['id_eleve', 'module', 'path', 'activity', 'tps_posix', 'exercice', 'correct', 'question_type',
        'jour', 'etape', 'id_mpa', 'id_mpae', 'date', 'essai', 'diagnostique',
-       'tps+1', 'duree', 'num_connection', 'reconnections',
-       'nbr_questions_faites', 'parcours_diagnostique','horaire']
+       'tps+1', 'duree', 'num_connection', 'reconnections', 
+       'parcours_diagnostique', 'nbr_questions_faites', 'horaire']
         print("                      |/`)")
-        chatbot_final = chatbot_new.loc[:,['id_eleve', 'module', 'path', 'activity', 'tps_posix', 'exercice','correct',
+        # Now we can delete some unuseful columns 
+        chatbot_final = chatbot_new.loc[:,['id_eleve', 'module', 'path', 'activity', 'tps_posix', 'exercice','correct', 'question_type',
        'jour', 'etape', 'id_mpa', 'id_mpae', 'date', 'essai',
        'tps+1', 'duree', 'num_connection', 'reconnections',
-       'nbr_questions_faites', 'parcours_diagnostique', 'horaire']]
+       'parcours_diagnostique', 'nbr_questions_faites', 'horaire']]
         print("                      'c=,")
         chatbot_final.to_pickle((os.path.join(".","data", f"chatbot_data_{today}.pk1")))
-
         print("\nchatbot dataframe built from trackings and sequences data\n")
+
+#transform_data(3, 'sequences_original_v2','trackings_original_v2')
 
 def main(argv):
     if usage(argv) != 0:

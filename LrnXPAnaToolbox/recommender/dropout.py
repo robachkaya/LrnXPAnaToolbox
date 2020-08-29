@@ -36,6 +36,7 @@ def check_error(argv): # argv = arguments passed to the script = dropout.py new_
     return 0
 
 def dropout_prediction_training_data(dataset, module_concerned, path_concerned, dropout_after_activity):
+    """Compute students features to train the dropout prediciton on."""
     module_concerned = int(module_concerned)
     path_concerned = int(path_concerned)
     dropout_after_activity = int(dropout_after_activity)
@@ -82,11 +83,12 @@ def dropout_prediction_training_data(dataset, module_concerned, path_concerned, 
     return DF
 
 def dropout_prediction(prediction_test, student_array_features):
+    """Return the dropout prediciton value (0 if dropout, 1 if not) and the confidence level of the prediciton.
+       The non linear classification method used is the Decision Tree Classifier from sklearn. """
     X = prediction_test.drop('dropout', axis = 1)
     Y = prediction_test['dropout']
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.3)
     parametre = [{"max_depth":list(range(2,10))}]
-    
     retry = True
     while retry = True :
         try :
@@ -95,14 +97,12 @@ def dropout_prediction(prediction_test, student_array_features):
             retry = False
         except ValueError :
             retry = True
-
     best_param = try_model.fit(X_train,Y_train).best_params_
     model = DecisionTreeClassifier(max_depth = best_param["max_depth"])
     model.fit(X_train, Y_train)
     return model.predict( student_array_features ), model.score( X_test, Y_test )
 
 def dropout_recommendation(new_student_data, available_database, recommendation_dataset):
-
     """ parameters :
         - new_student_data  : student for whom we produced 20 best questions
           (there must be the columns : student, duree, correct, etape, jour, horaire)
@@ -112,8 +112,7 @@ def dropout_recommendation(new_student_data, available_database, recommendation_
           this parameters thanks to the parameter : available_database
         - recommendation_dataset of the 20 best questions to propose, columns  ['student_id','question_id','rating'].
         returns :
-        - the recommendation_dataset modified """
-
+        - the recommendation_dataset modified according to the predicted dropout prediciton value."""
     # if the available_database contains the student data :
     # we can get the following data for student_array_features with the available_database
     # else : we get student information thanks to the new_student_data parameter
@@ -156,7 +155,6 @@ def dropout_recommendation(new_student_data, available_database, recommendation_
 
     from_str_to_list(recommendation_dataset,'question_id')
     new_recommendation_dataset = recommendation_dataset.drop(dropout_index, axis=0) # WARNING : new_recommendation_dataset could be an empty dataframe
-
     return new_recommendation_dataset
 
 def main(argv):
