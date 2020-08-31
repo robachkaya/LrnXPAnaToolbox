@@ -1,2 +1,3 @@
 """Main module."""
-print("LrnXPAToolbox well installed !")
+def test():
+    return "LrnXPAToolbox well installed !"

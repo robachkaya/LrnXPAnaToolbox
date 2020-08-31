@@ -2,7 +2,7 @@
 
 __author__ = """Kayané Elmayan Robach"""
 __email__ = 'kaya.robach@gmail.com'
-__version__ = '0.1.0'
+__version__ = '0.3.0'
 
 from .create_marks import conditionnal_proba
 from .create_marks import complete_proba_matrix

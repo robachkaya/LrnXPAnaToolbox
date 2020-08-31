@@ -2,7 +2,7 @@
 
 __author__ = """Kayané Elmayan Robach"""
 __email__ = 'kaya.robach@gmail.com'
-__version__ = '0.1.0'
+__version__ = '0.3.0'
 
 from .dropout import dropout_prediction_training_data
 from .dropout import dropout_prediction
