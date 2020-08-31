@@ -64,12 +64,6 @@ def get_files(argv):
     df4.columns = ['student_id', 'question_id', 'rating']
     return df1, df2, df3, df4
 
-student_data = pds.read_pickle((os.path.join(".","data","student_data_2020-08_29.pk1")))
-student_marks = pds.read_pickle((os.path.join(".","data","notes_eleve_question.pk1")))
-students_df = pds.read_pickle((os.path.join(".","data","chatbot_data_2020-08-29.pk1")))
-marks_df = pds.read_pickle((os.path.join(".","data","table_marks_2020-08-26.pk1")))
-algorithm(student_data, student_marks, students_df, marks_df)
-
 def main(argv):
     if usage(argv) != 0:
         return 0
