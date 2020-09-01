@@ -25,23 +25,32 @@ Learning Experience Analysis Toolbox contains tools to analyse learning experien
 LrnXPAnaToolbox functions
 --------
 
-The most useful functions (but not the only ones) :
 
 LrnXPAnaToolbox
 
 	transform_data
-		transform_data.py		transform_data(option, original_json_sequences_name, original_json_trackings_name)
+		transform_data.py		main function : data_transformation(option, original_json_sequences_name, original_json_trackings_name)
 	
 	create_marks
-		create_marks.py			create_marks(pickle_file)
+		create_marks.py			marks_table(pickle_file)
+						conditionnal_proba(dataset, module, path, test, failure=False, get_proba_specific_path=False)
+						complete_proba_matrix(proba, failure=False)
 
 	cluster_students
 		cluster_students.py		similar_students(available_database, new_student_data, clustering_plot=False)
+						plot_clustering(DFVariables, DFMBKMEANS, nbr_clusters, nbr_components=3)
+						creationDFClustering(available_database)
+						optimal_n_clusters(data, clustering_method, nbr_students)
+
 
 	recommender
 		dropout.py			dropout_recommendation(new_student_data, available_database, recommendation_dataset)
+						dropout_prediction_training_data(dataset, module_concerned, path_concerned, dropout_after_activity)
+						dropout_prediction(prediction_test, student_array_features)
+
 		final_test_recommendation.py	recom_algorithm(userinput_df, students_df)
-		recommender.py			algorithm(student_data, student_marks, students_df, marks_df)
+
+		recommender.py			main function : algorithm(student_data, student_marks, students_df, marks_df)
 
 
 * transform_data() take the names of the json files of data collected by the EvidenceB developpers, the objective of this function is to transform the pickle files (with the name passed as parameters) into pandas dataframe table for the data analysts.
@@ -55,7 +64,7 @@ sequences is usefull if you want to know about what is shown on the chatbot (the
 chatbot (is mainly computed from the trackings file) is usefull to manipulate the data, you can implement new function in order to get new variables.
 
 
-* create_marks() returns a dataframe with 3 columns the student, the question and the mark. This mark used to represent the learning achieved by the student with the exercise. More the mark has a high value, more the question is useful for the learning of the student. One of the tenets of this function is that : making mistakes is useful.
+* marks_table() returns a dataframe with 3 columns the student, the question and the mark. This mark used to represent the learning achieved by the student with the exercise. More the mark has a high value, more the question is useful for the learning of the student. One of the tenets of this function is that : making mistakes is useful.
 This function is useful to create the marks dataframe, needed to compute the LrnXPAnaToolbox.recommender.recommender.argorithm() function later. The only parameter for this function is the name of the pickle file of data (you can get one pickle like this one with LrnXPAnaToolbox.transform_data()).
 
 
