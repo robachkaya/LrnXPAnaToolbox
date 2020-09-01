@@ -80,6 +80,10 @@ How to use
 
 	.pip install LrnXPAnaToolbox
 
+Or if the package already exists and you just want to update it :
+
+	.pip install LrnXPAnaToolbox --upgrade
+
 If you want to use this package in anaconda : go to the anaconda environment in which you are working 
 (For example if you are working in a base environment run the following : conda activate base)
 
