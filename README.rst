@@ -25,23 +25,23 @@ Learning Experience Analysis Toolbox contains tools to analyse learning experien
 LrnXPAnaToolbox functions
 --------
 
-The most useful functions :
+The most useful functions (but not the only ones) :
 
 LrnXPAnaToolbox
 
 	transform_data
-		transform_data.py	transform_data(option, original_json_sequences_name, original_json_trackings_name)
+		transform_data.py		transform_data(option, original_json_sequences_name, original_json_trackings_name)
 	
 	create_marks
-		create_marks.py	create_marks(pickle_file)
+		create_marks.py			create_marks(pickle_file)
 
 	cluster_students
-		cluster_students.py	similar_students(available_database, new_student_data, clustering_plot=False)
+		cluster_students.py		similar_students(available_database, new_student_data, clustering_plot=False)
 
 	recommender
-		dropout.py	dropout_recommendation(new_student_data, available_database, recommendation_dataset)
+		dropout.py			dropout_recommendation(new_student_data, available_database, recommendation_dataset)
 		final_test_recommendation.py	recom_algorithm(userinput_df, students_df)
-		recommender.py	algorithm(student_data, student_marks, students_df, marks_df)
+		recommender.py			algorithm(student_data, student_marks, students_df, marks_df)
 
 
 * transform_data() take the names of the json files of data collected by the EvidenceB developpers, the objective of this function is to transform the pickle files (with the name passed as parameters) into pandas dataframe table for the data analysts.
@@ -80,9 +80,14 @@ How to use
 
 	.pip install LrnXPAnaToolbox
 
+If you want to use this package in anaconda : go to the anaconda environment in which you are working 
+(For example if you are working in a base environment run the following : conda activate base)
+
+	.pip install LrnXPAnaToolbox
+
 If any problem prevent you to install the package you can :
 
-* create a folder to cole the repository package
+* create a folder to clone the repository package
 
 * in the folder :
 

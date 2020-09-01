@@ -48,7 +48,7 @@ def dropout_prediction_training_data(dataset, module_concerned, path_concerned, 
             # the number of the first connection in which the student has done the activity dropout_after_activity
             first_connection_for_dropout_after_activity = student_groupby[student_groupby.activity == dropout_after_activity].sort_values('tps_posix', ascending=True).iloc[0]['num_connection']
             # the date of the last exercise the student has done in the activity dropout_after_activity
-            highest_date_dropout_after_activity = max(student_groupby[ student_groupby.activity == dropout_after_activity ]['tps_posix'])
+            highest_date_dropout_after_activity = max(student_groupby[ (student_groupby.activity == dropout_after_activity) & (student_groupby.num_connection == first_connection_for_dropout_after_activity) ]['tps_posix'])
             student_groupby = student_groupby[ (student_groupby.num_connection == first_connection_for_dropout_after_activity) & (student_groupby.tps_posix <= highest_date_dropout_after_activity) ]
             if student_groupby.shape[0] != 0 :
                 d[student] = [student]
