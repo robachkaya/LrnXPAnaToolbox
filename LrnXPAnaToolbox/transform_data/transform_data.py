@@ -344,7 +344,7 @@ def tranche_horaire(data):
     return d
 
 
-def transform_data(option,original_json_sequences_name,original_json_trackings_name):
+def data_transformation(option,original_json_sequences_name,original_json_trackings_name):
 
     today = datetime.date.today()
 
@@ -582,7 +582,7 @@ def transform_data(option,original_json_sequences_name,original_json_trackings_n
         chatbot_final.to_pickle((os.path.join(".","data", f"chatbot_data_{today}.pk1")))
         print("\nchatbot dataframe built from trackings and sequences data\n")
 
-#transform_data(3, 'sequences_original_v2','trackings_original_v2')
+#data_transformation(3, 'sequences_original_v2','trackings_original_v2')
 
 def main(argv):
     if usage(argv) != 0:
@@ -592,7 +592,7 @@ def main(argv):
     option = int(argv[1])
     seq_name = str(argv[2])
     track_name = str(argv[3])
-    transform_data(option, seq_name, track_name)
+    data_transformation(option, seq_name, track_name)
     return 0
 
 if __name__ == '__main__':

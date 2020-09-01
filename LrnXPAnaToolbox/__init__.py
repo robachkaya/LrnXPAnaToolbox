@@ -18,7 +18,7 @@ from .cluster_students.cluster_students import similar_students
 
 from .create_marks.create_marks import conditionnal_proba
 from .create_marks.create_marks import complete_proba_matrix
-from .create_marks.create_marks import create_marks
+from .create_marks.create_marks import marks_table
 
 from .transform_data.transform_data import to_workable_json
 from .transform_data.transform_data import json_to_csv_seq
@@ -34,7 +34,7 @@ from .transform_data.transform_data import plus_proche
 from .transform_data.transform_data import get_index_connection
 from .transform_data.transform_data import get_parcours_diagnostique
 from .transform_data.transform_data import tranche_horaire
-from .transform_data.transform_data import transform_data
+from .transform_data.transform_data import data_transformation
 
 from .recommender.dropout import dropout_prediction_training_data
 from .recommender.dropout import dropout_prediction
