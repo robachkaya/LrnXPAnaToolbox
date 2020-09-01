@@ -90,7 +90,7 @@ def dropout_prediction(prediction_test, student_array_features):
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.3)
     parametre = [{"max_depth":list(range(2,10))}]
     retry = True
-    while retry = True :
+    while retry == True :
         try :
             try_model = GridSearchCV(DecisionTreeClassifier(),parametre,n_jobs=-1)
             try_model.fit(X_train,Y_train)
