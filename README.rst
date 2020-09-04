@@ -23,24 +23,27 @@ Learning Experience Analysis Toolbox contains tools to analyse learning experien
 * Documentation: https://LrnXPAnaToolbox.readthedocs.io.
 
 
-<<<<<<< HEAD
 
 How to use
 --------
 
-.pip install LrnXPAnaToolbox
+## Installation
+
+Run the command :
+
+    pip install LrnXPAnaToolbox
 
 Or if the package already exists and you just want to update it :
 
-.pip install LrnXPAnaToolbox --upgrade
+    pip install LrnXPAnaToolbox --upgrade
 
 
 If you want to use this package in anaconda : go to the anaconda environment in which you are working 
 (For example if you are working in a base environment run the following : )
 
-conda activate base
+    conda activat base
 
-.pip install LrnXPAnaToolbox
+    pip install LrnXPAnaToolbox
 
 
 If any problem prevent you to install the package you can :
@@ -49,21 +52,21 @@ If any problem prevent you to install the package you can :
 
 * in the folder :
 
-.git clone https://github.com/robachkaya/LrnXPAnaToolbox
+    git clone https://github.com/robachkaya/LrnXPAnaToolbox
 
 Or
 
-.git clone git@github.com:robachkaya/LrnXPAnaToolbox.git
+    git clone git@github.com:robachkaya/LrnXPAnaToolbox.git
 
 With the following key : uqdkr
 
 Then
 
-.python setup.py install
+    python setup.py install
 
 * go to the first folder name LrnXPAnaToolbox (where you can find a requirements_dev.txt)
 
-.pip install -r requirements_dev.txt
+    pip install -r requirements_dev.txt
 
 
 
@@ -150,8 +153,6 @@ Then it is in this data folder that you will able to retrieve the pickle file cr
 
 
 
-=======
->>>>>>> 5300607f602e6d41681d823d136369c96ff497e2
 Features
 --------
 

@@ -130,9 +130,9 @@ def complete_proba_matrix(proba, failure=False):
             participants.append(dict(row=couple[0],col=couple[1],value=v[0][1,0] + v[0][1,1]))
     return pds.DataFrame(matrix), pds.DataFrame(participants)
 
-def create_marks(pickle_file) :
+def marks_table(pickle_file) :
 
-    """ create_marks returns a dataframe with 3 columns the student, the question and the mark. This mark used to represent
+    """ marks_table returns a dataframe with 3 columns the student, the question and the mark. This mark used to represent
         the learning achieved by the student with the exercise. More the mark has a high value, more the question is useful
         for the learning of the student. One of the tenets of this function is that : making mistakes is useful.
         This function takes 1 parameters :
@@ -172,7 +172,7 @@ def create_marks(pickle_file) :
         from sklearn.model_selection import train_test_split, GridSearchCV
         from sklearn.tree import DecisionTreeClassifier
 
-        create_marks_2( "chatbot_data.pk1" )
+        marks_table( "chatbot_data.pk1" )
 
         # one row of the pandas dataframe called returned is :
         #           student                question         mark
@@ -285,7 +285,7 @@ def main(argv):
     if check_error(argv) != 0:
         exit(84)
     pickle = str(argv[1])
-    create_marks(pickle)
+    marks_table(pickle)
     return 0
 
 if __name__ == '__main__':
