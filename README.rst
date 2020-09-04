@@ -24,7 +24,8 @@ Learning Experience Analysis Toolbox contains tools to analyse learning experien
 
 How to use
 --------
-##Installation
+
+Installation
 
 Run the command :
 
@@ -61,7 +62,7 @@ Then
 
     python setup.py install
 
-* go to the first folder name LrnXPAnaToolbox (where you can find a requirements_dev.txt)
+* go to the first folder name LrnXPAnaToolbox (where you can find a requirements_dev.txt) :
 
     pip install -r requirements_dev.txt
 
