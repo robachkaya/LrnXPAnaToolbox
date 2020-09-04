@@ -13,8 +13,6 @@ UQDKR LrnXPAnaToolbox
         :target: https://LrnXPAnaToolbox.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-TEST
-
 
 Learning Experience Analysis Toolbox contains tools to analyse learning experience data using the pandas library. This package is developped for EvidenceB leraning experience data.
 
@@ -26,8 +24,7 @@ Learning Experience Analysis Toolbox contains tools to analyse learning experien
 
 How to use
 --------
-
-## Installation
+##Installation
 
 Run the command :
 
@@ -54,7 +51,7 @@ If any problem prevent you to install the package you can :
 
     git clone https://github.com/robachkaya/LrnXPAnaToolbox
 
-Or
+* Or :
 
     git clone git@github.com:robachkaya/LrnXPAnaToolbox.git
 
@@ -77,29 +74,35 @@ LrnXPAnaToolbox functions
 
 LrnXPAnaToolbox
 
-	transform_data
-		transform_data.py		main function : data_transformation(option, original_json_sequences_name, original_json_trackings_name)
+	transform_data :
+		transform_data.py :
+			main function : data_transformation(option, original_json_sequences_name, original_json_trackings_name)
 	
-	create_marks
-		create_marks.py			marks_table(pickle_file)
-						conditionnal_proba(dataset, module, path, test, failure=False, get_proba_specific_path=False)
-						complete_proba_matrix(proba, failure=False)
+	create_marks :
+		create_marks.py	 :
+			marks_table(pickle_file)
+			conditionnal_proba(dataset, module, path, test, failure=False, get_proba_specific_path=False)
+			complete_proba_matrix(proba, failure=False)
 
-	cluster_students
-		cluster_students.py		similar_students(available_database, new_student_data, clustering_plot=False)
-						plot_clustering(DFVariables, DFMBKMEANS, nbr_clusters, nbr_components=3)
-						creationDFClustering(available_database)
-						optimal_n_clusters(data, clustering_method, nbr_students)
+	cluster_students :
+		cluster_students.py :
+			similar_students(available_database, new_student_data, clustering_plot=False)
+			plot_clustering(DFVariables, DFMBKMEANS, nbr_clusters, nbr_components=3)
+			creationDFClustering(available_database)
+			optimal_n_clusters(data, clustering_method, nbr_students)
 
 
-	recommender
-		dropout.py			dropout_recommendation(new_student_data, available_database, recommendation_dataset)
-						dropout_prediction_training_data(dataset, module_concerned, path_concerned, dropout_after_activity)
-						dropout_prediction(prediction_test, student_array_features)
+	recommender :
+		dropout.py :
+			dropout_recommendation(new_student_data, available_database, recommendation_dataset)
+			dropout_prediction_training_data(dataset, module_concerned, path_concerned, dropout_after_activity)
+			dropout_prediction(prediction_test, student_array_features)
 
-		final_test_recommendation.py	recom_algorithm(userinput_df, students_df)
+		final_test_recommendation.py :
+			recom_algorithm(userinput_df, students_df)
 
-		recommender.py			main function : algorithm(student_data, student_marks, students_df, marks_df)
+		recommender.py	:
+			main function : algorithm(student_data, student_marks, students_df, marks_df)
 
 
 * transform_data() take the names of the json files of data collected by the EvidenceB developpers, the objective of this function is to transform the pickle files (with the name passed as parameters) into pandas dataframe table for the data analysts.
@@ -140,7 +143,7 @@ Example of use (for a data analyst)
 LrnXPAnaToolbox.transform_data.transform_data() will take the json files of the developpers and an option (with option = 3, for example, you will get the max of this function) as parameters. 
 From the chatbot pickle created you can compute marks to get a big table of marks for each students and questions. 
 Then when you collect the data of a new student on the chatbot you can do the same thing : transform the data and create the marks (this will be way faster compared to the time spent to compute the dataframe for all data).
-To give you an idea, computing the transform data fucntion on all data take something like 20 minutes when it takes ................ for only one student.
+To give you an idea, computing the transform data fucntion on all data take something like 20 minutes when it takes less than 5 minutes for only one student.
 Computing the create marks function on all data will take 3 hours comparing to a few minutesfor only one student.
 The objective doing this is to recommend question(s) to the new student for his/her next connection. 
 To do so, given the forth computed dataframes you can recommend question with the recommender function.
