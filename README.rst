@@ -13,6 +13,8 @@ UQDKR LrnXPAnaToolbox
         :target: https://LrnXPAnaToolbox.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
+TEST
+
 
 Learning Experience Analysis Toolbox contains tools to analyse learning experience data using the pandas library. This package is developped for EvidenceB leraning experience data.
 
@@ -21,6 +23,7 @@ Learning Experience Analysis Toolbox contains tools to analyse learning experien
 * Documentation: https://LrnXPAnaToolbox.readthedocs.io.
 
 
+<<<<<<< HEAD
 
 How to use
 --------
@@ -147,12 +150,12 @@ Then it is in this data folder that you will able to retrieve the pickle file cr
 
 
 
+=======
+>>>>>>> 5300607f602e6d41681d823d136369c96ff497e2
 Features
 --------
 
 * TODO
-
-
 
 Credits
 -------
