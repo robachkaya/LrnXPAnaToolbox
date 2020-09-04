@@ -2,7 +2,7 @@
 
 __author__ = """Kayané Elmayan Robach"""
 __email__ = 'kaya.robach@gmail.com'
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 from .lib import str_question_tolist
 from .lib import list_question_tostr
