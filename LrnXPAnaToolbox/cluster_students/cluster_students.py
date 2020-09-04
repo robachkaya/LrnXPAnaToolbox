@@ -8,7 +8,7 @@ import numpy as np
 import os
 import datetime
 from matplotlib import pyplot as plt
-from sklearn.cluster import KMeans, MiniBatchKMeans, AgglomerativeClustering
+from sklearn.cluster import KMeans, MiniBatchKMeans
 from sklearn.metrics import pairwise_distances_argmin_min
 from sklearn import metrics
 from sklearn import preprocessing

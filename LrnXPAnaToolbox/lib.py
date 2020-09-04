@@ -30,4 +30,3 @@ def from_str_to_list(df,column_name):
     pds.options.mode.chained_assignment = None
     df[f"{column_name}"] = dfnew[f"{column_name}"].apply( lambda x : str_question_tolist(x) )
     return df
-

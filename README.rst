@@ -22,6 +22,49 @@ Learning Experience Analysis Toolbox contains tools to analyse learning experien
 
 
 
+How to use
+--------
+
+.pip install LrnXPAnaToolbox
+
+Or if the package already exists and you just want to update it :
+
+.pip install LrnXPAnaToolbox --upgrade
+
+
+If you want to use this package in anaconda : go to the anaconda environment in which you are working 
+(For example if you are working in a base environment run the following : )
+
+conda activate base
+
+.pip install LrnXPAnaToolbox
+
+
+If any problem prevent you to install the package you can :
+
+* create a folder to clone the repository package
+
+* in the folder :
+
+.git clone https://github.com/robachkaya/LrnXPAnaToolbox
+
+Or
+
+.git clone git@github.com:robachkaya/LrnXPAnaToolbox.git
+
+With the following key : uqdkr
+
+Then
+
+.python setup.py install
+
+* go to the first folder name LrnXPAnaToolbox (where you can find a requirements_dev.txt)
+
+.pip install -r requirements_dev.txt
+
+
+
+
 LrnXPAnaToolbox functions
 --------
 
@@ -84,43 +127,6 @@ As it is the case for the cluster_students function this function takes a new st
 
 
 
-How to use
---------
-
-	.pip install LrnXPAnaToolbox
-
-Or if the package already exists and you just want to update it :
-
-	.pip install LrnXPAnaToolbox --upgrade
-
-If you want to use this package in anaconda : go to the anaconda environment in which you are working 
-(For example if you are working in a base environment run the following : conda activate base)
-
-	.pip install LrnXPAnaToolbox
-
-If any problem prevent you to install the package you can :
-
-* create a folder to clone the repository package
-
-* in the folder :
-
-	.git clone https://github.com/robachkaya/LrnXPAnaToolbox
-
-Or
-
-	.git clone git@github.com:robachkaya/LrnXPAnaToolbox.git
-
-With the following key : uqdkr
-
-Then
-
-	.python setup.py install
-
-* go to the first folder name LrnXPAnaToolbox (where you can find a requirements_dev.txt)
-
-	.pip install -r requirements_dev.txt
-
-
 
 Example of use (for a data analyst)
 --------
@@ -137,6 +143,7 @@ To transform data and for the futur manipulations :
 You have to create a data file in which you will save the original json data files from the developpers.
 During the transformation from json files to pickle files which take place executing the LrnXPAnaToolbox.transform_data() function some new files will appear in this data folder.
 Then it is in this data folder that you will able to retrieve the pickle file created.
+
 
 
 

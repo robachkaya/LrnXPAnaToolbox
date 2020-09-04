@@ -582,8 +582,6 @@ def data_transformation(option,original_json_sequences_name,original_json_tracki
         chatbot_final.to_pickle((os.path.join(".","data", f"chatbot_data_{today}.pk1")))
         print("\nchatbot dataframe built from trackings and sequences data\n")
 
-#data_transformation(3, 'sequences_original_v2','trackings_original_v2')
-
 def main(argv):
     if usage(argv) != 0:
         exit(0)

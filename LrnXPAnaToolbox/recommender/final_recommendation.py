@@ -10,7 +10,7 @@ def recom_algorithm(userinput_df, students_df) :
     """Select 20 questions with the best relevance score to present to the student using a collaborative filtering."""
     userinput_df = from_list_to_str(userinput_df,'question_id')
     students_df = from_list_to_str(students_df,'question_id')
-    
+
     # Beginning of the collaborative filtering.
     # Filtering out students that have answered the same questions as the student X and storing it
     usersubset = students_df[students_df['question_id'].isin(userinput_df['question_id'])]
