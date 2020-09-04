@@ -40,7 +40,6 @@ setup(
     install_requires=requirements,
     license="MIT license",
     long_description=readme + '\n\n' + history,
-    long_description_content_type='text/markdown',
     include_package_data=True,
     keywords='LrnXPAnaToolbox',
     name='LrnXPAnaToolbox',
@@ -49,6 +48,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/robachkaya/LrnXPAnaToolbox',
-    version='0.3.6',
+    version='0.1.0',
     zip_safe=False,
 )
