@@ -130,7 +130,7 @@ def complete_proba_matrix(proba, failure=False):
             participants.append(dict(row=couple[0],col=couple[1],value=v[0][1,0] + v[0][1,1]))
     return pds.DataFrame(matrix), pds.DataFrame(participants)
 
-def marks_table(pickle_file) :
+def marks_table(database) :
 
     """ marks_table returns a dataframe with 3 columns the student, the question and the mark. This mark used to represent
         the learning achieved by the student with the exercise. More the mark has a high value, more the question is useful
@@ -180,7 +180,6 @@ def marks_table(pickle_file) :
 
     print("start computing data to create marks")
     print("                        / `.   .' \\")
-    database = pds.read_pickle(os.path.join(".","data", f"{pickle_file}.pk1"))
     DF = database[database['etape']!=3]
 
     from_list_to_str(DF,'id_mpae')
@@ -285,7 +284,8 @@ def main(argv):
     if check_error(argv) != 0:
         exit(84)
     pickle = str(argv[1])
-    marks_table(pickle)
+    database = pds.read_pickle(os.path.join(".","data", f"{pickle}.pk1"))
+    marks_table(database)
     return 0
 
 if __name__ == '__main__':
